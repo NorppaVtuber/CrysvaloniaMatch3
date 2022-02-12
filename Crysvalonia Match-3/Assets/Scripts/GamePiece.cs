@@ -29,12 +29,10 @@ public class GamePiece : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        targetX = column;
-        targetY = row;
         if(Mathf.Abs(targetX - transform.position.x) > .1)
         {
             tempPos = new Vector2(targetX, transform.position.y);
-            transform.position = Vector2.Lerp(transform.position, tempPos, .4f);
+            transform.position = Vector2.Lerp(transform.position, tempPos, .1f);
         }
         else
         {
@@ -42,6 +40,19 @@ public class GamePiece : MonoBehaviour
             transform.position = tempPos;
             board.allObjects[column, row] = this.gameObject;
         }
+        if(Mathf.Abs(targetY - transform.position.y) > .1)
+        {
+            tempPos = new Vector2(transform.position.x, targetY);
+            transform.position = Vector2.Lerp(transform.position, tempPos, .1f);
+        }
+        else
+        {
+            tempPos = new Vector2(transform.position.x, targetY);
+            transform.position = tempPos;
+            board.allObjects[column, row] = this.gameObject;
+        }
+        targetX = column;
+        targetY = row;
     }
 
     void OnMouseDown()
@@ -58,7 +69,11 @@ public class GamePiece : MonoBehaviour
     void CalculateAngle()
     {
         moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
-        MovePieces();
+        Debug.Log(moveAngle);
+        if(moveAngle != 0)
+        {
+           MovePieces(); 
+        }
     }
 
     void MovePieces()
@@ -66,30 +81,30 @@ public class GamePiece : MonoBehaviour
         if(moveAngle > -45 && moveAngle <= 45 && column < board.width)
         {
             //Right
-            otherObject = board.allObjects[column++, row];
-            otherObject.GetComponent<GamePiece>().column--;
-            column++;
+            otherObject = board.allObjects[column = (column + 1), row];
+            otherObject.GetComponent<GamePiece>().column = (column - 1);
+            //column = (column + 1);
         }
         else if(moveAngle > 45 && moveAngle <= 135 && row < board.height)
         {
             //Up
-            otherObject = board.allObjects[column, row++];
-            otherObject.GetComponent<GamePiece>().row--;
-            row++;
+            otherObject = board.allObjects[column, row = (row + 1)];
+            otherObject.GetComponent<GamePiece>().row = (row - 1);
+            //row = (row + 1);
         }
         else if((moveAngle > 135 || moveAngle <= -135) && column > 0)
         {
             //Left
-            otherObject = board.allObjects[column--, row];
-            otherObject.GetComponent<GamePiece>().column++;
-            column--;
+            otherObject = board.allObjects[column = (column - 1), row];
+            otherObject.GetComponent<GamePiece>().column = (column + 1);
+            //column = (column - 1);
         }
-        else if(moveAngle < -45 && moveAngle >= 135 && row > 0)
+        else if((moveAngle < -45 || moveAngle >= 135) && row > 0)
         {
             //Down
-            otherObject = board.allObjects[column, row--];
-            otherObject.GetComponent<GamePiece>().row++;
-            row--;
+            otherObject = board.allObjects[column, row = (row - 1)];
+            otherObject.GetComponent<GamePiece>().row = (row + 1);
+            //row = (row - 1);
         }
     }
 }
