@@ -3,7 +3,15 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Carrot
+  - Cheese
+  - Clover
+  - Dog treat
+  - Feather
+  - Mouse
+  - Pumpkin
+  - Starfish
   layers:
   - Default
   - TransparentFX

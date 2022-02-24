@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3481459511292417282}
   m_Layer: 0
   m_Name: Pumpkin
-  m_TagString: Untagged
+  m_TagString: Pumpkin
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -112,4 +112,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5d6f139300a5d4f9e4e50fce24e8d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  column: 0
+  row: 0
+  targetX: 0
+  targetY: 0
+  isMatched: 0
   moveAngle: 0
