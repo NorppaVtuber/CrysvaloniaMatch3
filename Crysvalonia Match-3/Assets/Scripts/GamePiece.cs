@@ -20,6 +20,7 @@ public class GamePiece : MonoBehaviour
     private Vector2 finalPos;
     private Vector2 tempPos;
     private float moveAngle;
+    private float swipeResist = 1f;
 
     // Start is called before the first frame update
     void Start()
@@ -38,32 +39,39 @@ public class GamePiece : MonoBehaviour
     {
         if(isMatched)
         {
-            //remove game piece
+            SpriteRenderer mySprite = GetComponent<SpriteRenderer>(); // change the opacity of the matched sprite
+            mySprite.color = new Color(1f, 1f, 1f, .2f);
         }
+        targetX = column;
+        targetY = row;
         if(Mathf.Abs(targetX - transform.position.x) > .1)
         {
             tempPos = new Vector2(targetX, transform.position.y);
             transform.position = Vector2.Lerp(transform.position, tempPos, .1f);
+            if(board.allObjects[column, row] != this.gameObject)
+            {
+                board.allObjects[column, row] = this.gameObject;
+            }
         }
         else
         {
             tempPos = new Vector2(targetX, transform.position.y);
             transform.position = tempPos;
-            board.allObjects[column, row] = this.gameObject;
         }
         if(Mathf.Abs(targetY - transform.position.y) > .1)
         {
             tempPos = new Vector2(transform.position.x, targetY);
-            transform.position = Vector2.Lerp(transform.position, tempPos, .1f);
+            transform.position = Vector2.Lerp(transform.position, tempPos, .1f); 
+            if (board.allObjects[column, row] != this.gameObject)
+            {
+                board.allObjects[column, row] = this.gameObject;
+            }
         }
         else
         {
             tempPos = new Vector2(transform.position.x, targetY);
             transform.position = tempPos;
-            board.allObjects[column, row] = this.gameObject;
         }
-        targetX = column;
-        targetY = row;
     }
 
     public IEnumerator CheckMoveCo()
@@ -78,71 +86,71 @@ public class GamePiece : MonoBehaviour
                 row = prevRow;
                 column = prevColumn;
             }
+            else
+            {
+                board.DestroyMatches();
+            }
             otherObject = null;
-        }
+        } 
     }
 
-    void OnMouseDown()
+    private void OnMouseDown()
     {
         firstPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
-    void OnMouseUp()
+    private void OnMouseUp()
     {
         finalPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         CalculateAngle();
     }
 
-    void CalculateAngle()
+    private void CalculateAngle()
     {
-        moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
-        Debug.Log(moveAngle);
-        if(moveAngle != 0) // figure out something better for this bug
+        if(Mathf.Abs(finalPos.y - firstPos.y) > swipeResist || Mathf.Abs(finalPos.x - firstPos.x) > swipeResist)
         {
-           MovePieces(); 
+            moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
+            Debug.Log(moveAngle);
+            MovePieces();
         }
     }
 
-    void MovePieces()
+    private void MovePieces()
     {
         if(moveAngle > -45 && moveAngle <= 45 && column < board.width - 1)
         {
             //Right
             otherObject = board.allObjects[column = (column + 1), row];
             otherObject.GetComponent<GamePiece>().column = (column - 1);
-            //column = (column + 1);
         }
         else if(moveAngle > 45 && moveAngle <= 135 && row < board.height - 1)
         {
             //Up
             otherObject = board.allObjects[column, row = (row + 1)];
             otherObject.GetComponent<GamePiece>().row = (row - 1);
-            //row = (row + 1);
         }
         else if((moveAngle > 135 || moveAngle <= -135) && column > 0)
         {
             //Left
             otherObject = board.allObjects[column = (column - 1), row];
             otherObject.GetComponent<GamePiece>().column = (column + 1);
-            //column = (column - 1);
         }
         else if((moveAngle < -45 || moveAngle >= 135) && row > 0)
         {
             //Down
             otherObject = board.allObjects[column, row = (row - 1)];
             otherObject.GetComponent<GamePiece>().row = (row + 1);
-            //row = (row - 1);
         }
         FindMatches();
         StartCoroutine(CheckMoveCo());
     }
 
-    void FindMatches()
+    private void FindMatches()
     {
         if(column > 0 && column < board.width - 1)
         {
-            GameObject leftObject1 = board.allObjects[column - 1, row];
             GameObject rightObject1 = board.allObjects[column + 1, row];
+            GameObject leftObject1 = board.allObjects[column - 1, row];
             GameObject leftObject2 = null;
             GameObject rightObject2 = null;
             if(column + 2 < board.width - 1)
@@ -153,28 +161,31 @@ public class GamePiece : MonoBehaviour
             {
                 leftObject2 = board.allObjects[column - 2, row];
             }
-            if (leftObject1.tag == this.gameObject.tag && rightObject1.tag == this.gameObject.tag)
+            if (leftObject1 != null && rightObject1 != null)
             {
-                leftObject1.GetComponent<GamePiece>().isMatched = true;
-                rightObject1.GetComponent<GamePiece>().isMatched = true;
-                isMatched = true;
-            }
-            else if (leftObject2 != null)
-            {
-                if (leftObject1.tag == this.gameObject.tag && leftObject2.tag == this.gameObject.tag)
+                if (leftObject1.tag == this.gameObject.tag && rightObject1.tag == this.gameObject.tag)
                 {
                     leftObject1.GetComponent<GamePiece>().isMatched = true;
-                    leftObject2.GetComponent<GamePiece>().isMatched = true;
+                    rightObject1.GetComponent<GamePiece>().isMatched = true;
                     isMatched = true;
                 }
-            }
-            else if(rightObject2 != null)
-            {
-                if (rightObject1.tag == this.gameObject.tag && rightObject2.tag == this.gameObject.tag)
+                else if (leftObject2 != null)
                 {
-                    rightObject1.GetComponent<GamePiece>().isMatched = true;
-                    rightObject2.GetComponent<GamePiece>().isMatched = true;
-                    isMatched = true;
+                    if (leftObject1.tag == this.gameObject.tag && leftObject2.tag == this.gameObject.tag)
+                    {
+                        leftObject1.GetComponent<GamePiece>().isMatched = true;
+                        leftObject2.GetComponent<GamePiece>().isMatched = true;
+                        isMatched = true;
+                    }
+                }
+                else if (rightObject2 != null)
+                {
+                    if (rightObject1.tag == this.gameObject.tag && rightObject2.tag == this.gameObject.tag)
+                    {
+                        rightObject1.GetComponent<GamePiece>().isMatched = true;
+                        rightObject2.GetComponent<GamePiece>().isMatched = true;
+                        isMatched = true;
+                    }
                 }
             }
         }
@@ -192,28 +203,31 @@ public class GamePiece : MonoBehaviour
             {
                 downObject2 = board.allObjects[column, row - 2];
             }
-            if (upObject1.tag == this.gameObject.tag && downObject1.tag == this.gameObject.tag)
+            if (upObject1 != null && downObject1 != null)
             {
-                upObject1.GetComponent<GamePiece>().isMatched = true;
-                downObject1.GetComponent<GamePiece>().isMatched = true;
-                isMatched = true;
-            }
-            else if (upObject2 != null)
-            {
-                if (upObject1.tag == this.gameObject.tag && upObject2.tag == this.gameObject.tag)
+                if (upObject1.tag == this.gameObject.tag && downObject1.tag == this.gameObject.tag)
                 {
                     upObject1.GetComponent<GamePiece>().isMatched = true;
-                    upObject2.GetComponent<GamePiece>().isMatched = true;
+                    downObject1.GetComponent<GamePiece>().isMatched = true;
                     isMatched = true;
                 }
-            }
-            else if(downObject2 != null)
-            { 
-                if (downObject1.tag == this.gameObject.tag && downObject2.tag == this.gameObject.tag)
+                else if (upObject2 != null)
                 {
-                    downObject1.GetComponent<GamePiece>().isMatched = true;
-                    downObject2.GetComponent<GamePiece>().isMatched = true;
-                    isMatched = true;
+                    if (upObject1.tag == this.gameObject.tag && upObject2.tag == this.gameObject.tag)
+                    {
+                        upObject1.GetComponent<GamePiece>().isMatched = true;
+                        upObject2.GetComponent<GamePiece>().isMatched = true;
+                        isMatched = true;
+                    }
+                }
+                else if (downObject2 != null)
+                {
+                    if (downObject1.tag == this.gameObject.tag && downObject2.tag == this.gameObject.tag)
+                    {
+                        downObject1.GetComponent<GamePiece>().isMatched = true;
+                        downObject2.GetComponent<GamePiece>().isMatched = true;
+                        isMatched = true;
+                    }
                 }
             }
         }
