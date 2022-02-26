@@ -6,6 +6,8 @@ public class Board : MonoBehaviour
 {
     public int height;
     public int width;
+    public float decreaseRowWaitTime;
+    public float spawnPieceWaitTime;
 
     public GameObject tilePrefab;
     public GameObject[] objects;
@@ -123,7 +125,7 @@ public class Board : MonoBehaviour
             }
             nullCount = 0;
         }
-        yield return new WaitForSeconds(.4f);
+        yield return new WaitForSeconds(decreaseRowWaitTime);
         StartCoroutine(FillBoardCo());
     }
 
@@ -165,11 +167,11 @@ public class Board : MonoBehaviour
     private IEnumerator FillBoardCo()
     {
         RefillBoard();
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(spawnPieceWaitTime);
 
         while (MatchesOnBoard())
         {
-            yield return new WaitForSeconds(.5f);
+            yield return new WaitForSeconds(spawnPieceWaitTime);
             DestroyMatches();
         }
     }
