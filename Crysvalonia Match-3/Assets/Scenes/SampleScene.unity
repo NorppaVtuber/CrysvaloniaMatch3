@@ -237,6 +237,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 10
   width: 15
+  decreaseRowWaitTime: 0.4
+  spawnPieceWaitTime: 0.5
   tilePrefab: {fileID: 2844984970372759429, guid: e1873bbe22b297d429d19a7ffdf0bf51, type: 3}
   objects:
   - {fileID: 7604723390818976636, guid: 1c8bff8194d2fe14885aad9cfbcb699c, type: 3}

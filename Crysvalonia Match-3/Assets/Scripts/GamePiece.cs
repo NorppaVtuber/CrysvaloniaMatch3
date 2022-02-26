@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GamePiece : MonoBehaviour
@@ -9,8 +8,8 @@ public class GamePiece : MonoBehaviour
     public int row;
     public int targetX;
     public int targetY;
-    private int prevColumn;
-    private int prevRow;
+    public int prevColumn;
+    public int prevRow;
     public bool isMatched = false;
 
     private Board board;
@@ -37,14 +36,15 @@ public class GamePiece : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isMatched)
+        FindMatches();
+        if (isMatched)
         {
             SpriteRenderer mySprite = GetComponent<SpriteRenderer>(); // change the opacity of the matched sprite
             mySprite.color = new Color(1f, 1f, 1f, .2f);
         }
         targetX = column;
         targetY = row;
-        if(Mathf.Abs(targetX - transform.position.x) > .1)
+        if(Mathf.Abs(targetX - transform.position.x) > .1) //move towards target
         {
             tempPos = new Vector2(targetX, transform.position.y);
             transform.position = Vector2.Lerp(transform.position, tempPos, .1f);
@@ -53,12 +53,12 @@ public class GamePiece : MonoBehaviour
                 board.allObjects[column, row] = this.gameObject;
             }
         }
-        else
+        else //directly set position
         {
             tempPos = new Vector2(targetX, transform.position.y);
             transform.position = tempPos;
         }
-        if(Mathf.Abs(targetY - transform.position.y) > .1)
+        if(Mathf.Abs(targetY - transform.position.y) > .1) //same but in y position
         {
             tempPos = new Vector2(transform.position.x, targetY);
             transform.position = Vector2.Lerp(transform.position, tempPos, .1f); 
@@ -141,96 +141,40 @@ public class GamePiece : MonoBehaviour
             otherObject = board.allObjects[column, row = (row - 1)];
             otherObject.GetComponent<GamePiece>().row = (row + 1);
         }
-        FindMatches();
         StartCoroutine(CheckMoveCo());
     }
 
-    private void FindMatches()
+    void FindMatches() //column = pystyyn, row = vaakaan
     {
         if(column > 0 && column < board.width - 1)
         {
-            GameObject rightObject1 = board.allObjects[column + 1, row];
-            GameObject leftObject1 = board.allObjects[column - 1, row];
-            GameObject leftObject2 = null;
-            GameObject rightObject2 = null;
-            if(column + 2 < board.width - 1)
+            GameObject left1 = board.allObjects[column - 1, row];
+            GameObject right1 = board.allObjects[column + 1, row];
+            if (left1 != null && right1 != null)
             {
-                rightObject2 = board.allObjects[column + 2, row];
-            }
-            if(column - 2 > 0)
-            {
-                leftObject2 = board.allObjects[column - 2, row];
-            }
-            if (leftObject1 != null && rightObject1 != null)
-            {
-                if (leftObject1.tag == this.gameObject.tag && rightObject1.tag == this.gameObject.tag)
+                if (left1.tag == this.gameObject.tag && right1.tag == this.gameObject.tag)
                 {
-                    leftObject1.GetComponent<GamePiece>().isMatched = true;
-                    rightObject1.GetComponent<GamePiece>().isMatched = true;
+                    left1.GetComponent<GamePiece>().isMatched = true;
+                    right1.GetComponent<GamePiece>().isMatched = true;
                     isMatched = true;
-                }
-                else if (leftObject2 != null)
-                {
-                    if (leftObject1.tag == this.gameObject.tag && leftObject2.tag == this.gameObject.tag)
-                    {
-                        leftObject1.GetComponent<GamePiece>().isMatched = true;
-                        leftObject2.GetComponent<GamePiece>().isMatched = true;
-                        isMatched = true;
-                    }
-                }
-                else if (rightObject2 != null)
-                {
-                    if (rightObject1.tag == this.gameObject.tag && rightObject2.tag == this.gameObject.tag)
-                    {
-                        rightObject1.GetComponent<GamePiece>().isMatched = true;
-                        rightObject2.GetComponent<GamePiece>().isMatched = true;
-                        isMatched = true;
-                    }
+                    Debug.Log("Match");
                 }
             }
         }
         if (row > 0 && row < board.height - 1)
         {
-            GameObject upObject1 = board.allObjects[column, row + 1];
-            GameObject downObject1 = board.allObjects[column, row - 1];
-            GameObject upObject2 = null;
-            GameObject downObject2 = null;
-            if (row + 2 < board.height - 1)
+            GameObject up1 = board.allObjects[column, row + 1];
+            GameObject down1 = board.allObjects[column, row - 1];
+            if (up1 != null && down1 != null)
             {
-                upObject2 = board.allObjects[column, row + 2];
-            }
-            if(row - 2 > 0)
-            {
-                downObject2 = board.allObjects[column, row - 2];
-            }
-            if (upObject1 != null && downObject1 != null)
-            {
-                if (upObject1.tag == this.gameObject.tag && downObject1.tag == this.gameObject.tag)
+                if (up1.tag == this.gameObject.tag && down1.tag == this.gameObject.tag)
                 {
-                    upObject1.GetComponent<GamePiece>().isMatched = true;
-                    downObject1.GetComponent<GamePiece>().isMatched = true;
+                    up1.GetComponent<GamePiece>().isMatched = true;
+                    down1.GetComponent<GamePiece>().isMatched = true;
                     isMatched = true;
-                }
-                else if (upObject2 != null)
-                {
-                    if (upObject1.tag == this.gameObject.tag && upObject2.tag == this.gameObject.tag)
-                    {
-                        upObject1.GetComponent<GamePiece>().isMatched = true;
-                        upObject2.GetComponent<GamePiece>().isMatched = true;
-                        isMatched = true;
-                    }
-                }
-                else if (downObject2 != null)
-                {
-                    if (downObject1.tag == this.gameObject.tag && downObject2.tag == this.gameObject.tag)
-                    {
-                        downObject1.GetComponent<GamePiece>().isMatched = true;
-                        downObject2.GetComponent<GamePiece>().isMatched = true;
-                        isMatched = true;
-                    }
+                    Debug.Log("Match");
                 }
             }
         }
-        Debug.Log("Match Found");
     }
 }
