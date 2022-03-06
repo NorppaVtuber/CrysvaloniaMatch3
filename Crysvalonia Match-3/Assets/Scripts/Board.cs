@@ -140,6 +140,7 @@ public class Board : MonoBehaviour
                     Vector2 tempPos = new Vector2(i, j);
                     int objectToUse = Random.Range(0, objects.Length);
                     GameObject piece = Instantiate(objects[objectToUse], tempPos, Quaternion.identity);
+                    piece.transform.parent = this.transform;
                     allObjects[i, j] = piece;
                 }
             }
@@ -169,7 +170,7 @@ public class Board : MonoBehaviour
         RefillBoard();
         yield return new WaitForSeconds(spawnPieceWaitTime);
 
-        while (MatchesOnBoard())
+        while(MatchesOnBoard())
         {
             yield return new WaitForSeconds(spawnPieceWaitTime);
             DestroyMatches();
