@@ -56,4 +56,9 @@ public class Menu : MonoBehaviour
     {
         resetCanvas.enabled = false;
     }
+
+    public void StarGame()
+    {
+        SceneManager.LoadScene("GameScene");
+    }
 }
