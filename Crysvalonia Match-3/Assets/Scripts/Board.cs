@@ -1,16 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
+public enum GameState
+{
+    WAIT,
+    MOVE
+}
 
 public class Board : MonoBehaviour
 {
+    private FindMatches matches;
+    public GameState currentState = GameState.MOVE;
+
     public int height;
     public int width;
+    public int offSet;
+
     public float decreaseRowWaitTime;
     public float spawnPieceWaitTime;
 
     public GameObject tilePrefab;
     public GameObject[] objects;
+
+    public Slider scoreSlider;
 
     private BackgroundTile[,] tiles;
     public GameObject[,] allObjects;
@@ -18,6 +32,8 @@ public class Board : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        matches = FindObjectOfType<FindMatches>();
+        scoreSlider.value = 0;
         tiles = new BackgroundTile[width, height];
         allObjects = new GameObject[width, height];
         SetUp();
@@ -29,7 +45,7 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                Vector2 tempPos = new Vector2(i,j);
+                Vector2 tempPos = new Vector2(i, j + offSet);
                 GameObject backgroundTile = Instantiate(tilePrefab, tempPos, Quaternion.identity) as GameObject;
                 backgroundTile.transform.parent = this.transform;
                 backgroundTile.name = "(" + i + ", " + j + ")";
@@ -41,8 +57,11 @@ public class Board : MonoBehaviour
                     maxIterations++;
                 }
                 maxIterations = 0;
+
                 Vector3 tilePos = new Vector3(tempPos.x, tempPos.y, -0.03f);
                 GameObject _object = Instantiate(objects[objectToUse], tilePos, Quaternion.identity);
+                _object.GetComponent<GamePiece>().row = j;
+                _object.GetComponent<GamePiece>().column = i;
                 _object.transform.parent = this.transform;
                 allObjects[i, j] = _object;
             }
@@ -86,6 +105,8 @@ public class Board : MonoBehaviour
     {
         if (allObjects[column, row].GetComponent<GamePiece>().isMatched)
         {
+            scoreSlider.value += allObjects[column, row].GetComponent<GamePiece>().score;
+            matches.currentMatches.Remove(allObjects[column, row]);
             Destroy(allObjects[column, row]);
             allObjects[column, row] = null;
         }
@@ -137,11 +158,13 @@ public class Board : MonoBehaviour
             {
                 if(allObjects[i, j] == null)
                 {
-                    Vector2 tempPos = new Vector2(i, j);
+                    Vector2 tempPos = new Vector2(i, j + offSet);
                     int objectToUse = Random.Range(0, objects.Length);
                     GameObject piece = Instantiate(objects[objectToUse], tempPos, Quaternion.identity);
                     piece.transform.parent = this.transform;
                     allObjects[i, j] = piece;
+                    piece.GetComponent<GamePiece>().row = j;
+                    piece.GetComponent<GamePiece>().column = i;
                 }
             }
         }
@@ -175,5 +198,7 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(spawnPieceWaitTime);
             DestroyMatches();
         }
+        yield return new WaitForSeconds(.5f);
+        currentState = GameState.MOVE;
     }
 }

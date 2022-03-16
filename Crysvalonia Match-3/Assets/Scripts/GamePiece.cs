@@ -11,6 +11,9 @@ public class GamePiece : MonoBehaviour
     public int prevColumn;
     public int prevRow;
     public bool isMatched = false;
+    public int score;
+
+    private FindMatches matches;
 
     private Board board;
     private GameObject otherObject;
@@ -25,18 +28,19 @@ public class GamePiece : MonoBehaviour
     void Start()
     {
         board = FindObjectOfType<Board>();
-        targetX = (int)transform.position.x;
-        targetY = (int)transform.position.y;
-        row = targetY;
-        column = targetX;
-        prevRow = row;
-        prevColumn = column;
+        matches = FindObjectOfType<FindMatches>();
+        //targetX = (int)transform.position.x;
+        //targetY = (int)transform.position.y;
+        //row = targetY;
+        //column = targetX;
+        //prevRow = row;
+        //prevColumn = column;
     }
 
     // Update is called once per frame
     void Update()
     {
-        FindMatches();
+        //FindMatches();
         if (isMatched)
         {
             SpriteRenderer mySprite = GetComponent<SpriteRenderer>(); // change the opacity of the matched sprite
@@ -52,6 +56,7 @@ public class GamePiece : MonoBehaviour
             {
                 board.allObjects[column, row] = this.gameObject;
             }
+            matches.FindAllMatches();
         }
         else //directly set position
         {
@@ -66,6 +71,7 @@ public class GamePiece : MonoBehaviour
             {
                 board.allObjects[column, row] = this.gameObject;
             }
+            matches.FindAllMatches();
         }
         else
         {
@@ -85,6 +91,8 @@ public class GamePiece : MonoBehaviour
                 otherObject.GetComponent<GamePiece>().column = column;
                 row = prevRow;
                 column = prevColumn;
+                yield return new WaitForSeconds(.5f);
+                board.currentState = GameState.MOVE;
             }
             else
             {
@@ -96,22 +104,37 @@ public class GamePiece : MonoBehaviour
 
     private void OnMouseDown()
     {
-        firstPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if(board.currentState == GameState.MOVE)
+        {
+            firstPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
     }
 
     private void OnMouseUp()
     {
-        finalPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        CalculateAngle();
+        if (board.currentState == GameState.MOVE)
+        {
+            finalPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            CalculateAngle();
+        }
+        
     }
 
     private void CalculateAngle()
     {
-        if(Mathf.Abs(finalPos.y - firstPos.y) > swipeResist || Mathf.Abs(finalPos.x - firstPos.x) > swipeResist)
+        if(!Menu.isPaused)
         {
-            moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
-            Debug.Log(moveAngle);
-            MovePieces();
+            if (Mathf.Abs(finalPos.y - firstPos.y) > swipeResist || Mathf.Abs(finalPos.x - firstPos.x) > swipeResist)
+            {
+                moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
+                Debug.Log(moveAngle);
+                MovePieces();
+                board.currentState = GameState.WAIT;
+            }
+            else
+            {
+                board.currentState = GameState.MOVE;
+            }
         }
     }
 
@@ -120,24 +143,32 @@ public class GamePiece : MonoBehaviour
         if(moveAngle > -45 && moveAngle <= 45 && column < board.width - 1)
         {
             //Right
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column = (column + 1), row];
             otherObject.GetComponent<GamePiece>().column = (column - 1);
         }
         else if(moveAngle > 45 && moveAngle <= 135 && row < board.height - 1)
         {
             //Up
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column, row = (row + 1)];
             otherObject.GetComponent<GamePiece>().row = (row - 1);
         }
         else if((moveAngle > 135 || moveAngle <= -135) && column > 0)
         {
             //Left
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column = (column - 1), row];
             otherObject.GetComponent<GamePiece>().column = (column + 1);
         }
         else if((moveAngle < -45 || moveAngle >= 135) && row > 0)
         {
             //Down
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column, row = (row - 1)];
             otherObject.GetComponent<GamePiece>().row = (row + 1);
         }

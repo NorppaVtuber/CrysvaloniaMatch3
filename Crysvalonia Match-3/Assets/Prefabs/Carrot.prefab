@@ -116,5 +116,7 @@ MonoBehaviour:
   row: 0
   targetX: 0
   targetY: 0
+  prevColumn: 0
+  prevRow: 0
   isMatched: 0
-  moveAngle: 0
+  score: 100
