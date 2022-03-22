@@ -9,6 +9,7 @@ public class Menu : MonoBehaviour
     public Canvas menuCanvas;
     public Canvas resetCanvas;
     public Canvas creditsCanvas;
+    public Canvas startCanvas;
 
     public static bool isPaused = false;
     private bool creditsIsOpen = false;
@@ -19,6 +20,7 @@ public class Menu : MonoBehaviour
         resetCanvas.enabled = false;
         menuCanvas.enabled = false;
         creditsCanvas.enabled = false;
+        startCanvas.enabled = false;
     }
 
     public void MenuButton()
@@ -90,6 +92,30 @@ public class Menu : MonoBehaviour
 
     public void StarGame()
     {
+        startCanvas.enabled = true;
+    }
+    public void Easy()
+    {
+        Moves.gameDifficulty = 1;
         SceneManager.LoadScene("GameScene");
+    }
+    public void Normal()
+    {
+        Moves.gameDifficulty = 2;
+        SceneManager.LoadScene("GameScene");
+    }
+    public void Hard()
+    {
+        Moves.gameDifficulty = 3;
+        SceneManager.LoadScene("GameScene");
+    }
+    public void VHard()
+    {
+        Moves.gameDifficulty = 4;
+        SceneManager.LoadScene("GameScene");
+    }
+    public void StartBack()
+    {
+        startCanvas.enabled = false;
     }
 }

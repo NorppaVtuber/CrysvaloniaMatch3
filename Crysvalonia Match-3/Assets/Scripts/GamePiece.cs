@@ -78,6 +78,10 @@ public class GamePiece : MonoBehaviour
             tempPos = new Vector2(transform.position.x, targetY);
             transform.position = tempPos;
         }
+        if(Moves.remainingMoves <= 0)
+        {
+            board.currentState = GameState.OVER;
+        }
     }
 
     public IEnumerator CheckMoveCo()
@@ -96,6 +100,7 @@ public class GamePiece : MonoBehaviour
             }
             else
             {
+                Moves.remainingMoves--;
                 board.DestroyMatches();
             }
             otherObject = null;

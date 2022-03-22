@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public enum GameState
 {
     WAIT,
-    MOVE
+    MOVE,
+    OVER
 }
 
 public class Board : MonoBehaviour
@@ -190,15 +191,20 @@ public class Board : MonoBehaviour
 
     private IEnumerator FillBoardCo()
     {
+
         RefillBoard();
         yield return new WaitForSeconds(spawnPieceWaitTime);
 
-        while(MatchesOnBoard())
+
+        while (MatchesOnBoard())
         {
             yield return new WaitForSeconds(spawnPieceWaitTime);
             DestroyMatches();
         }
-        yield return new WaitForSeconds(.5f);
-        currentState = GameState.MOVE;
+        if(currentState != GameState.OVER)
+        {
+            yield return new WaitForSeconds(.5f);
+            currentState = GameState.MOVE;
+        }
     }
 }
