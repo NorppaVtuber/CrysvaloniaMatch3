@@ -30,6 +30,8 @@ public class Board : MonoBehaviour
     private BackgroundTile[,] tiles;
     public GameObject[,] allObjects;
 
+    public GamePiece currentPiece;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -106,6 +108,10 @@ public class Board : MonoBehaviour
     {
         if (allObjects[column, row].GetComponent<GamePiece>().isMatched)
         {
+            if(matches.currentMatches.Count == 4 || matches.currentMatches.Count == 7)
+            {
+                matches.CheckFlames();
+            }
             scoreSlider.value += allObjects[column, row].GetComponent<GamePiece>().score;
             matches.currentMatches.Remove(allObjects[column, row]);
             Destroy(allObjects[column, row]);
@@ -119,7 +125,7 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if(allObjects[i, j] != null)
+                if (allObjects[i, j] != null)
                 {
                     DestroyMatchesAt(i, j);
                 }
@@ -201,10 +207,16 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(spawnPieceWaitTime);
             DestroyMatches();
         }
+        matches.currentMatches.Clear();
+        currentPiece = null;
         if(currentState != GameState.OVER)
         {
             yield return new WaitForSeconds(.5f);
             currentState = GameState.MOVE;
+        }
+        if(currentState == GameState.OVER)
+        {
+            Debug.Log(scoreSlider.value);
         }
     }
 }

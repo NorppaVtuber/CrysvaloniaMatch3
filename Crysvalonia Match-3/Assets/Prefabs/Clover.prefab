@@ -120,3 +120,8 @@ MonoBehaviour:
   prevRow: 0
   isMatched: 0
   score: 100
+  isColumnFlame: 0
+  isRowFlame: 0
+  columnFlame: {fileID: 9191418925565579039, guid: 46f7ec1bd6bde3645b1eaf4663a8e01e, type: 3}
+  rowFlame: {fileID: 8443894035983585554, guid: 08680f38b7f300f45a48ab2d63b0e2ea, type: 3}
+  sprite: {fileID: 6418505835522370597}

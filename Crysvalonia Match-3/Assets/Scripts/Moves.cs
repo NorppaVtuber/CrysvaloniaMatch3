@@ -26,7 +26,7 @@ public class Moves : MonoBehaviour
                 remainingMoves = 10;
                 break;
             default:
-                remainingMoves = 20;
+                remainingMoves = 200;
                 break;
         }
     }

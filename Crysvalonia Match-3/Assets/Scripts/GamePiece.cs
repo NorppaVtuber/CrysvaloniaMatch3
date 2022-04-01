@@ -13,10 +13,16 @@ public class GamePiece : MonoBehaviour
     public bool isMatched = false;
     public int score;
 
+    [Header("PowerUp Stuffs")]
+    public bool isColumnFlame;
+    public bool isRowFlame;
+    public GameObject columnFlame;
+    public GameObject rowFlame;
+
     private FindMatches matches;
 
     private Board board;
-    private GameObject otherObject;
+    public GameObject otherObject;
 
     private Vector2 firstPos;
     private Vector2 finalPos;
@@ -29,6 +35,8 @@ public class GamePiece : MonoBehaviour
     {
         board = FindObjectOfType<Board>();
         matches = FindObjectOfType<FindMatches>();
+        isColumnFlame = false;
+        isRowFlame = false;
         //targetX = (int)transform.position.x;
         //targetY = (int)transform.position.y;
         //row = targetY;
@@ -36,6 +44,19 @@ public class GamePiece : MonoBehaviour
         //prevRow = row;
         //prevColumn = column;
     }
+
+    //testing and debugging only
+    /*private void OnMouseOver()
+    {
+        if(Input.GetMouseButtonDown(1))
+        {
+            isColumnFlame = true;
+            GameObject flame = Instantiate(columnFlame, transform.position, Quaternion.identity);
+            flame.transform.parent = this.transform;
+            SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+            sprite.color = new Color(0f, 0f, 0f, 0f);
+        }
+    }*/
 
     // Update is called once per frame
     void Update()
@@ -96,6 +117,7 @@ public class GamePiece : MonoBehaviour
                 row = prevRow;
                 column = prevColumn;
                 yield return new WaitForSeconds(.5f);
+                board.currentPiece = null;
                 board.currentState = GameState.MOVE;
             }
             else
@@ -103,7 +125,7 @@ public class GamePiece : MonoBehaviour
                 Moves.remainingMoves--;
                 board.DestroyMatches();
             }
-            otherObject = null;
+            //otherObject = null;
         } 
     }
 
@@ -132,9 +154,10 @@ public class GamePiece : MonoBehaviour
             if (Mathf.Abs(finalPos.y - firstPos.y) > swipeResist || Mathf.Abs(finalPos.x - firstPos.x) > swipeResist)
             {
                 moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
-                Debug.Log(moveAngle);
+                //Debug.Log(moveAngle);
                 MovePieces();
                 board.currentState = GameState.WAIT;
+                board.currentPiece = this;
             }
             else
             {
@@ -212,5 +235,23 @@ public class GamePiece : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void MakeColumnFlame()
+    {
+        isColumnFlame = true;
+        GameObject flame = Instantiate(columnFlame, transform.position, Quaternion.identity);
+        flame.transform.parent = this.transform;
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+        sprite.color = new Color(0f, 0f, 0f, .2f);
+    }
+
+    public void MakeRowFlame()
+    {
+        isRowFlame = true;
+        GameObject flame = Instantiate(rowFlame, transform.position, Quaternion.identity);
+        flame.transform.parent = this.transform;
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+        sprite.color = new Color(0f, 0f, 0f, .2f);
     }
 }

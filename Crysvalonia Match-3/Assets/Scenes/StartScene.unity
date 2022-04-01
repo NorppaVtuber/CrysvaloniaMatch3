@@ -2429,19 +2429,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Credits:
-
-
-    Game design:
-
-    Programming:
-
-    Art:
-
-    Music:
-
-    Gemstone
-    ponies & the Crysvalonia world: '
+  m_text: "Credits:\n\nGame design: Norppa / Noora Soini\nProgramming: Norppa / Noora
+    Soini\nArt: Norppa / Noora Soini\nMusic: Migge / Miika Koskinen\nGemstone ponies
+    & the Crysvalonia world: \nPure-Blue-Heart"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
   m_sharedMaterial: {fileID: 2147374, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
