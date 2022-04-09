@@ -971,6 +971,7 @@ GameObject:
   - component: {fileID: 497322888}
   - component: {fileID: 497322887}
   - component: {fileID: 497322889}
+  - component: {fileID: 497322890}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -1021,6 +1022,103 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movesText: {fileID: 891435347}
+  defaultMoves: 200
+--- !u!82 &497322890
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497322886}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 9f17d607d5ae1544d91642d3887aece9, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1032,6 +1130,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1047,6 +1146,23 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+--- !u!114 &519420030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce04dd05c8d6dd24f92266af4f413dec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  w: 4
+  h: 0
+  cameraDistance: -15
+  aspectRatio: 1.7
+  padding: 4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -2369,7 +2485,20 @@ MonoBehaviour:
   - {fileID: 6195293476890572671, guid: 7da1128ef157c824db7f6bc456fca43e, type: 3}
   - {fileID: 8206150144570913076, guid: a9bc33b99c38a6c479c49b236014e077, type: 3}
   - {fileID: 4521676797600720289, guid: 795c17d0ff893f14a84bd5f18794c98f, type: 3}
+  destroyEffect:
+  - {fileID: 5201760157446125496, guid: c1fb7c4e4d25e5c428be0f5d41fece8d, type: 3}
+  - {fileID: 5201760157446125496, guid: 927b3536c57044d46bd9289e3ef469b9, type: 3}
+  - {fileID: 5201760157446125496, guid: 96b715a1b624ea44cb9162741900523b, type: 3}
+  - {fileID: 5201760157446125496, guid: f844e0de2977ed8439432fa96b47d170, type: 3}
+  - {fileID: 5201760157446125496, guid: d1249f9127d1bda4cb0f50525ca0d509, type: 3}
+  - {fileID: 5201760157446125496, guid: 290ea8e1bc7e67e42910ccbf3d991aac, type: 3}
+  - {fileID: 5201760157446125496, guid: 9561bd35c4d077244b5d7a84362f1ab3, type: 3}
+  - {fileID: 5201760157446125496, guid: 0800931f308069a4ca9afd09f24ad405, type: 3}
+  - {fileID: 5201760157446125496, guid: 93efe5d9c7d88c84e94dceeefbacce75, type: 3}
+  - {fileID: 5201760157446125496, guid: 3b10372965b406c44b330ddb59b178d6, type: 3}
+  - {fileID: 5201760157446125496, guid: 61f7cee295b83204ba57a66b157f64a3, type: 3}
   scoreSlider: {fileID: 1185820021}
+  currentPiece: {fileID: 0}
 --- !u!4 &1152748659
 Transform:
   m_ObjectHideFlags: 0
@@ -3460,13 +3589,14 @@ MonoBehaviour:
   m_text: 'Credits:
 
 
-    Game design:
+    Game design: Norppa / Noora Soini
 
-    Programming:
+    Programming: Norppa
+    / Noora Soini
 
-    Art:
+    Art: Norppa / Noora Soini
 
-    Music:
+    Music: Migge / Miika Koskinen
 
     Gemstone
     ponies & the Crysvalonia world: '

@@ -24,6 +24,7 @@ public class Board : MonoBehaviour
 
     public GameObject tilePrefab;
     public GameObject[] objects;
+    public GameObject[] destroyEffect;
 
     public Slider scoreSlider;
 
@@ -104,16 +105,150 @@ public class Board : MonoBehaviour
         return false;
     }
 
+    private bool ColumnOrRow()
+    {
+        int numberHorizontal = 0;
+        int numberVertical = 0;
+        GamePiece firstPiece = matches.currentMatches[0].GetComponent<GamePiece>();
+
+        if (firstPiece != null)
+        {
+            foreach (GameObject gamePiece in matches.currentMatches)
+            {
+                GamePiece piece = gamePiece.GetComponent<GamePiece>();
+                if(piece.row == firstPiece.row)
+                {
+                    numberHorizontal++;
+                }
+                if(piece.column == firstPiece.column)
+                {
+                    numberVertical++;
+                }
+            }
+        }
+        return (numberVertical == 5 || numberHorizontal == 5);
+    }
+
+    private void CheckToMakePowerUps()
+    {
+        if(matches.currentMatches.Count == 4 || matches.currentMatches.Count == 7)
+        {
+            matches.CheckFlames();
+        }
+        if(matches.currentMatches.Count == 5 || matches.currentMatches.Count == 8)
+        {
+            if(ColumnOrRow())
+            {
+                if(currentPiece != null)
+                {
+                    if (currentPiece.isMatched)
+                    {
+                        if (!currentPiece.isLightning)
+                        {
+                            currentPiece.isMatched = false;
+                            currentPiece.MakeLightningBottle();
+                        }
+                    }
+                    else
+                    {
+                        if(currentPiece.otherObject != null)
+                        {
+                            GamePiece otherPiece = currentPiece.otherObject.GetComponent<GamePiece>();
+                            if (otherPiece.isMatched)
+                            {
+                                if (!otherPiece.isLightning)
+                                {
+                                    otherPiece.isMatched = false;
+                                    otherPiece.MakeLightningBottle();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (currentPiece != null)
+                {
+                    if (currentPiece.isMatched)
+                    {
+                        if (!currentPiece.isBomb)
+                        {
+                            currentPiece.isMatched = false;
+                            currentPiece.MakeBomb();
+                        }
+                    }
+                    else
+                    {
+                        if (currentPiece.otherObject != null)
+                        {
+                            GamePiece otherPiece = currentPiece.otherObject.GetComponent<GamePiece>();
+                            if (otherPiece.isMatched)
+                            {
+                                if (!otherPiece.isBomb)
+                                {
+                                    otherPiece.isMatched = false;
+                                    otherPiece.MakeBomb();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void DestroyMatchesAt(int column, int row)
     {
         if (allObjects[column, row].GetComponent<GamePiece>().isMatched)
         {
-            if(matches.currentMatches.Count == 4 || matches.currentMatches.Count == 7)
+            if(matches.currentMatches.Count >= 4)
             {
-                matches.CheckFlames();
+                CheckToMakePowerUps();
             }
             scoreSlider.value += allObjects[column, row].GetComponent<GamePiece>().score;
-            matches.currentMatches.Remove(allObjects[column, row]);
+            int i;
+            switch (allObjects[column, row].tag)
+            {
+                case "Dog treat":
+                    i = 0;
+                    break;
+                case "Lightning bottle":
+                    i = 1;
+                    break;
+                case "Carrot":
+                    i = 2;
+                    break;
+                case "Cheese":
+                    i = 3;
+                    break;
+                case "Clover":
+                    i = 4;
+                    break;
+                case "Feather":
+                    i = 5;
+                    break;
+                case "Flames":
+                    i = 6;
+                    break;
+                case "Lightning":
+                    i = 7;
+                    break;
+                case "Mouse":
+                    i = 8;
+                    break;
+                case "Pumpkin":
+                    i = 9;
+                    break;
+                case "Starfish":
+                    i = 10;
+                    break;
+                default:
+                    i = 0;
+                    break;
+            }
+            GameObject particle = Instantiate(destroyEffect[i], allObjects[column, row].transform.position, Quaternion.identity);
+            Destroy(particle, .5f);
             Destroy(allObjects[column, row]);
             allObjects[column, row] = null;
         }
@@ -131,6 +266,7 @@ public class Board : MonoBehaviour
                 }
             }
         }
+        matches.currentMatches.Clear();
         StartCoroutine(DecreaseRowCo());
     }
 

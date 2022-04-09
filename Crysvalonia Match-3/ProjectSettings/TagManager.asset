@@ -12,6 +12,8 @@ TagManager:
   - Mouse
   - Pumpkin
   - Starfish
+  - ColumnFlame
+  - RowFlame
   layers:
   - Default
   - TransparentFX

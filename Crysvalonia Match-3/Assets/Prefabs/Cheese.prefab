@@ -120,8 +120,13 @@ MonoBehaviour:
   prevRow: 0
   isMatched: 0
   score: 100
+  isLightning: 0
   isColumnFlame: 0
   isRowFlame: 0
-  columnFlame: {fileID: 9191418925565579039, guid: 46f7ec1bd6bde3645b1eaf4663a8e01e, type: 3}
-  rowFlame: {fileID: 8443894035983585554, guid: 08680f38b7f300f45a48ab2d63b0e2ea, type: 3}
-  sprite: {fileID: 7465429054387059712}
+  isBomb: 0
+  columnFlame: {fileID: 6417356028077276357, guid: 46f7ec1bd6bde3645b1eaf4663a8e01e, type: 3}
+  rowFlame: {fileID: 8662997346212774642, guid: 08680f38b7f300f45a48ab2d63b0e2ea, type: 3}
+  lightningBottle: {fileID: 1694209973562546382, guid: 50005fe11f5828141822ea79f01f3e7c, type: 3}
+  bomb: {fileID: 5915736317766167820, guid: 6daaeb7b690375947b0ee96c5e87c7aa, type: 3}
+  otherObject: {fileID: 0}
+  moveAngle: 0

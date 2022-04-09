@@ -19,6 +19,96 @@ public class FindMatches : MonoBehaviour
         StartCoroutine(FindAllMatchesCo());
     }
 
+    private List<GameObject> IsBomb(GamePiece piece1, GamePiece piece2, GamePiece piece3)
+    {
+        List<GameObject> currentPieces = new List<GameObject>();
+
+        if (piece1.isBomb)
+        {
+            currentMatches.Union(GetAdjacentPieces(piece1.column, piece1.row));
+        }
+        if (piece2.isBomb)
+        {
+            currentMatches.Union(GetAdjacentPieces(piece2.column, piece2.row));
+        }
+        if (piece3.isBomb)
+        {
+            currentMatches.Union(GetAdjacentPieces(piece3.column, piece3.row));
+        }
+        return currentPieces;
+    }
+
+    private List<GameObject> GetAdjacentPieces(int column, int row)
+    {
+        List<GameObject> adjacentPieces = new List<GameObject>();
+        for (int i = column - 1; i <= column + 1; i++)
+        {
+            for (int j = row - 1; j < row + 1; j++)
+            {
+                if(i >= 0 && i < board.width && j >= 0 && j < board.height)
+                {
+                    adjacentPieces.Add(board.allObjects[i, j]);
+                    board.allObjects[i, j].GetComponent<GamePiece>().isMatched = true;
+                }
+            }
+        }
+        return adjacentPieces;
+    }
+
+    private List<GameObject> IsRowFlame(GamePiece piece1, GamePiece piece2, GamePiece piece3)
+    {
+        List<GameObject> currentPieces = new List<GameObject>();
+
+        if (piece1.isRowFlame)
+        {
+            currentMatches.Union(GetRowPieces(piece1.row));
+        }
+        if (piece2.isRowFlame)
+        {
+            currentMatches.Union(GetRowPieces(piece2.row));
+        }
+        if (piece3.isRowFlame)
+        {
+            currentMatches.Union(GetRowPieces(piece3.row));
+        }
+        return currentPieces;
+    }
+
+    private List<GameObject> IsColumnFlame(GamePiece piece1, GamePiece piece2, GamePiece piece3)
+    {
+        List<GameObject> currentPieces = new List<GameObject>();
+
+        if (piece1.isColumnFlame)
+        {
+            currentMatches.Union(GetColumnPieces(piece1.column));
+        }
+        if (piece2.isColumnFlame)
+        {
+            currentMatches.Union(GetColumnPieces(piece2.column));
+        }
+        if (piece3.isColumnFlame)
+        {
+            currentMatches.Union(GetColumnPieces(piece3.column));
+        }
+        return currentPieces;
+    }
+
+    private void AddToListAndMatch(GameObject piece)
+    {
+        if (!currentMatches.Contains(piece))
+        {
+            currentMatches.Add(piece);
+        }
+        piece.GetComponent<GamePiece>().isMatched = true;
+    }
+
+    private void GetNearbyPieces(GameObject piece1, GameObject piece2, GameObject piece3)
+    {
+        AddToListAndMatch(piece1);
+        AddToListAndMatch(piece2);
+        AddToListAndMatch(piece3);
+    }
+
     private IEnumerator FindAllMatchesCo()
     {
         yield return new WaitForSeconds(.2f);
@@ -28,98 +118,68 @@ public class FindMatches : MonoBehaviour
             for (int j = 0; j < board.height; j++)
             {
                 GameObject currentPiece = board.allObjects[i, j];
-                if(currentPiece != null)
+                if (currentPiece != null)
                 {
+                    GamePiece currentPieceComp = currentPiece.GetComponent<GamePiece>();
                     if (i > 0 && i < board.width - 1)
                     {
                         GameObject leftPiece = board.allObjects[i - 1, j];
                         GameObject rightPiece = board.allObjects[i + 1, j];
-                        if(leftPiece != null && rightPiece != null)
-                        {
-                            if(leftPiece.tag == currentPiece.tag && rightPiece.tag == currentPiece.tag)
-                            {
-                                if(currentPiece.GetComponent<GamePiece>().isRowFlame
-                                    || leftPiece.GetComponent<GamePiece>().isRowFlame
-                                    || rightPiece.GetComponent<GamePiece>().isRowFlame)
-                                {
-                                    currentMatches.Union(GetRowPieces(j));
-                                }
-                                if(currentPiece.GetComponent<GamePiece>().isColumnFlame)
-                                {
-                                    currentMatches.Union(GetColumnPieces(i));
-                                }
-                                if (leftPiece.GetComponent<GamePiece>().isColumnFlame)
-                                {
-                                    currentMatches.Union(GetColumnPieces(i - 1));
-                                }
-                                if (rightPiece.GetComponent<GamePiece>().isColumnFlame)
-                                {
-                                    currentMatches.Union(GetColumnPieces(i + 1));
-                                }
 
-                                if (!currentMatches.Contains(leftPiece))
-                                {
-                                    currentMatches.Add(leftPiece);
-                                }
-                                leftPiece.GetComponent<GamePiece>().isMatched = true;
-                                if (!currentMatches.Contains(rightPiece))
-                                {
-                                    currentMatches.Add(rightPiece);
-                                }
-                                rightPiece.GetComponent<GamePiece>().isMatched = true;
-                                if (!currentMatches.Contains(currentPiece))
-                                {
-                                    currentMatches.Add(currentPiece);
-                                }
-                                currentPiece.GetComponent<GamePiece>().isMatched = true;
+                        if (leftPiece != null && rightPiece != null)
+                        {
+                            GamePiece leftPieceComp = leftPiece.GetComponent<GamePiece>();
+                            GamePiece rightPieceComp = rightPiece.GetComponent<GamePiece>();
+
+                            if (leftPiece.tag == currentPiece.tag && rightPiece.tag == currentPiece.tag)
+                            {
+                                currentMatches.Union(IsRowFlame(currentPieceComp, leftPieceComp, rightPieceComp));
+                                currentMatches.Union(IsColumnFlame(currentPieceComp, leftPieceComp, rightPieceComp));
+                                currentMatches.Union(IsBomb(currentPieceComp, leftPieceComp, rightPieceComp));
+
+                                GetNearbyPieces(leftPiece, currentPiece, rightPiece);
+                            }
+                            
+                        }
+                    }
+                    if (j > 0 && j < board.height - 1)
+                    {
+                        GameObject upPiece = board.allObjects[i, j + 1];
+                        GameObject downPiece = board.allObjects[i, j - 1];
+
+                        if (upPiece != null && downPiece != null)
+                        {
+                            GamePiece upPieceComp = upPiece.GetComponent<GamePiece>();
+                            GamePiece downPieceComp = downPiece.GetComponent<GamePiece>();
+
+                            if (upPiece.tag == currentPiece.tag && downPiece.tag == currentPiece.tag)
+                            {
+
+                                currentMatches.Union(IsColumnFlame(currentPieceComp, upPieceComp, downPieceComp));
+                                currentMatches.Union(IsRowFlame(currentPieceComp, upPieceComp, downPieceComp));
+                                currentMatches.Union(IsBomb(currentPieceComp, upPieceComp, downPieceComp));
+
+                                GetNearbyPieces(upPiece, currentPiece, downPiece);
+
                             }
                         }
                     }
                 }
-                if (j > 0 && j < board.height - 1)
+            }
+        }
+    }
+
+    public void GetColors(string color)
+    {
+        for (int i = 0; i < board.width; i++)
+        {
+            for (int j = 0; j < board.height; j++)
+            {
+                if(board.allObjects[i, j] != null)
                 {
-                    GameObject upPiece = board.allObjects[i, j + 1];
-                    GameObject downPiece = board.allObjects[i, j - 1];
-                    if (upPiece != null && downPiece != null)
+                    if(board.allObjects[i, j].tag == color)
                     {
-                        if (upPiece.tag == currentPiece.tag && downPiece.tag == currentPiece.tag)
-                        {
-                            if (currentPiece.GetComponent<GamePiece>().isColumnFlame
-                                    || downPiece.GetComponent<GamePiece>().isColumnFlame
-                                    || upPiece.GetComponent<GamePiece>().isColumnFlame)
-                            {
-                                currentMatches.Union(GetColumnPieces(i));
-                            }
-                            if (currentPiece.GetComponent<GamePiece>().isRowFlame)
-                            {
-                                currentMatches.Union(GetRowPieces(j));
-                            }
-                            if (upPiece.GetComponent<GamePiece>().isRowFlame)
-                            {
-                                currentMatches.Union(GetRowPieces(j + 1));
-                            }
-                            if (downPiece.GetComponent<GamePiece>().isRowFlame)
-                            {
-                                currentMatches.Union(GetRowPieces(j - 1));
-                            }
-
-                            if (!currentMatches.Contains(upPiece))
-                            {
-                                currentMatches.Add(upPiece);
-                            }
-                            upPiece.GetComponent<GamePiece>().isMatched = true;
-                            if (!currentMatches.Contains(downPiece))
-                            {
-                                currentMatches.Add(downPiece);
-                            }
-                            downPiece.GetComponent<GamePiece>().isMatched = true;
-                            if (!currentMatches.Contains(currentPiece))
-                            {
-                                currentMatches.Add(currentPiece);
-                            }
-                            currentPiece.GetComponent<GamePiece>().isMatched = true;
-
-                        }
+                        board.allObjects[i, j].GetComponent<GamePiece>().isMatched = true;
                     }
                 }
             }
@@ -157,23 +217,36 @@ public class FindMatches : MonoBehaviour
     {
         if(board.currentPiece != null)
         {
-            bool otherIsMatched = board.currentPiece.otherObject.GetComponent<GamePiece>().isMatched;
+            bool otherIsMatched = board.currentPiece.otherObject.GetComponent<GamePiece>().isMatched && board.currentPiece.otherObject != null;
             if (board.currentPiece.isMatched)
             {
                 board.currentPiece.isMatched = false;
-                int typeOfFlame = Random.Range(0, 100);
-                if(typeOfFlame < 50)
-                {
-                    board.currentPiece.MakeColumnFlame();
-                }
-                else if(typeOfFlame >= 50)
+                if((board.currentPiece.moveAngle > -45 && board.currentPiece.moveAngle <= 45)
+                    || (board.currentPiece.moveAngle < -135 || board.currentPiece.moveAngle >= 135))
                 {
                     board.currentPiece.MakeRowFlame();
+                }
+                else
+                {
+                    board.currentPiece.MakeColumnFlame();
                 }
             }
             else if(otherIsMatched)
             {
-
+                GamePiece otherPiece = board.currentPiece.otherObject.GetComponent<GamePiece>();
+                if(otherPiece.isMatched)
+                {
+                    otherPiece.isMatched = false;
+                    if ((board.currentPiece.moveAngle > -45 && board.currentPiece.moveAngle <= 45)
+                     || (board.currentPiece.moveAngle < -135 || board.currentPiece.moveAngle >= 135))
+                    {
+                        otherPiece.MakeRowFlame();
+                    }
+                    else
+                    {
+                        otherPiece.MakeColumnFlame();
+                    }
+                }
             }
         }
     }

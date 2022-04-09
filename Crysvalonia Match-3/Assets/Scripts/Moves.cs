@@ -8,6 +8,7 @@ public class Moves : MonoBehaviour
     public static int remainingMoves;
     public static int gameDifficulty;
     public Text movesText;
+    public int defaultMoves;
 
     private void Start()
     {
@@ -26,7 +27,7 @@ public class Moves : MonoBehaviour
                 remainingMoves = 10;
                 break;
             default:
-                remainingMoves = 200;
+                remainingMoves = defaultMoves;
                 break;
         }
     }
