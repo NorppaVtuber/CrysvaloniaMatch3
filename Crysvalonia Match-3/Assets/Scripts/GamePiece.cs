@@ -11,36 +11,50 @@ public class GamePiece : MonoBehaviour
     public int prevColumn;
     public int prevRow;
     public bool isMatched = false;
+    public int score;
+
+    [Header("PowerUp Stuffs")]
+    public bool isLightning;
+    public bool isColumnFlame;
+    public bool isRowFlame;
+    public bool isBomb;
+    public GameObject columnFlame;
+    public GameObject rowFlame;
+    public GameObject lightningBottle;
+    public GameObject bomb;
+
+    private FindMatches matches;
 
     private Board board;
-    private GameObject otherObject;
+    public GameObject otherObject;
 
     private Vector2 firstPos;
     private Vector2 finalPos;
     private Vector2 tempPos;
-    private float moveAngle;
+    public float moveAngle;
     private float swipeResist = 1f;
 
     // Start is called before the first frame update
     void Start()
     {
+        isColumnFlame = false;
+        isRowFlame = false;
+        isLightning = false;
+        isBomb = false;
+
         board = FindObjectOfType<Board>();
-        targetX = (int)transform.position.x;
-        targetY = (int)transform.position.y;
-        row = targetY;
-        column = targetX;
-        prevRow = row;
-        prevColumn = column;
+        matches = FindObjectOfType<FindMatches>();
+        isColumnFlame = false;
+        isRowFlame = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        FindMatches();
         if (isMatched)
         {
             SpriteRenderer mySprite = GetComponent<SpriteRenderer>(); // change the opacity of the matched sprite
-            mySprite.color = new Color(1f, 1f, 1f, .2f);
+            mySprite.color = new Color(1f, 1f, 1f, 1f);
         }
         targetX = column;
         targetY = row;
@@ -52,6 +66,7 @@ public class GamePiece : MonoBehaviour
             {
                 board.allObjects[column, row] = this.gameObject;
             }
+            matches.FindAllMatches();
         }
         else //directly set position
         {
@@ -66,16 +81,32 @@ public class GamePiece : MonoBehaviour
             {
                 board.allObjects[column, row] = this.gameObject;
             }
+            matches.FindAllMatches();
         }
         else
         {
             tempPos = new Vector2(transform.position.x, targetY);
             transform.position = tempPos;
         }
+        if(Moves.remainingMoves <= 0)
+        {
+            board.currentState = GameState.OVER;
+        }
     }
 
     public IEnumerator CheckMoveCo()
     {
+        if (isLightning)
+        {
+            matches.GetColors(otherObject.tag);
+            isMatched = true;
+        }
+        else if (otherObject.GetComponent<GamePiece>().isLightning)
+        {
+            matches.GetColors(this.gameObject.tag);
+            otherObject.GetComponent<GamePiece>().isMatched = true;
+        }
+
         yield return new WaitForSeconds(.5f);
         if(otherObject != null)
         {
@@ -85,33 +116,53 @@ public class GamePiece : MonoBehaviour
                 otherObject.GetComponent<GamePiece>().column = column;
                 row = prevRow;
                 column = prevColumn;
+                yield return new WaitForSeconds(.5f);
+                board.currentPiece = null;
+                board.currentState = GameState.MOVE;
             }
             else
             {
+                Moves.remainingMoves--;
                 board.DestroyMatches();
             }
-            otherObject = null;
+            //otherObject = null;
         } 
     }
 
     private void OnMouseDown()
     {
-        firstPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if(board.currentState == GameState.MOVE)
+        {
+            firstPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
     }
 
     private void OnMouseUp()
     {
-        finalPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        CalculateAngle();
+        if (board.currentState == GameState.MOVE)
+        {
+            finalPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            CalculateAngle();
+        }
+        
     }
 
     private void CalculateAngle()
     {
-        if(Mathf.Abs(finalPos.y - firstPos.y) > swipeResist || Mathf.Abs(finalPos.x - firstPos.x) > swipeResist)
+        if(!Menu.isPaused)
         {
-            moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
-            Debug.Log(moveAngle);
-            MovePieces();
+            if (Mathf.Abs(finalPos.y - firstPos.y) > swipeResist || Mathf.Abs(finalPos.x - firstPos.x) > swipeResist)
+            {
+                board.currentState = GameState.WAIT;
+                moveAngle = Mathf.Atan2(finalPos.y - firstPos.y, finalPos.x - firstPos.x) * 180 / Mathf.PI;
+                //Debug.Log(moveAngle);
+                MovePieces();
+                board.currentPiece = this;
+            }
+            else
+            {
+                board.currentState = GameState.MOVE;
+            }
         }
     }
 
@@ -120,28 +171,42 @@ public class GamePiece : MonoBehaviour
         if(moveAngle > -45 && moveAngle <= 45 && column < board.width - 1)
         {
             //Right
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column = (column + 1), row];
             otherObject.GetComponent<GamePiece>().column = (column - 1);
+            StartCoroutine(CheckMoveCo());
         }
         else if(moveAngle > 45 && moveAngle <= 135 && row < board.height - 1)
         {
             //Up
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column, row = (row + 1)];
             otherObject.GetComponent<GamePiece>().row = (row - 1);
+            StartCoroutine(CheckMoveCo());
         }
         else if((moveAngle > 135 || moveAngle <= -135) && column > 0)
         {
             //Left
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column = (column - 1), row];
             otherObject.GetComponent<GamePiece>().column = (column + 1);
+            StartCoroutine(CheckMoveCo());
         }
         else if((moveAngle < -45 || moveAngle >= 135) && row > 0)
         {
             //Down
+            prevRow = row;
+            prevColumn = column;
             otherObject = board.allObjects[column, row = (row - 1)];
             otherObject.GetComponent<GamePiece>().row = (row + 1);
+            StartCoroutine(CheckMoveCo());
         }
-        StartCoroutine(CheckMoveCo());
+        
+         board.currentState = GameState.MOVE;
+        
     }
 
     void FindMatches() //column = pystyyn, row = vaakaan
@@ -176,5 +241,35 @@ public class GamePiece : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void MakeColumnFlame()
+    {
+        isColumnFlame = true;
+        GameObject flame = Instantiate(columnFlame, transform.position, Quaternion.identity);
+        flame.transform.parent = this.transform;
+    }
+
+    public void MakeRowFlame()
+    {
+        isRowFlame = true;
+        GameObject flame = Instantiate(rowFlame, transform.position, Quaternion.identity);
+        flame.transform.parent = this.transform;
+    }
+
+    public void MakeLightningBottle()
+    {
+        isLightning = true;
+        GameObject bottle = Instantiate(lightningBottle, transform.position, Quaternion.identity);
+        bottle.transform.parent = this.transform;
+        SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
+        sprite.color = new Color(0f, 0f, 0f, 0f);
+    }
+
+    public void MakeBomb()
+    {
+        isBomb = true;
+        GameObject bomber = Instantiate(bomb, transform.position, Quaternion.identity);
+        bomber.transform.parent = this.transform;
     }
 }
