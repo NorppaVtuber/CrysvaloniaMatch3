@@ -3,13 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum GameState
-{
-    WAIT,
-    MOVE,
-    OVER
-}
-
 public class Board : MonoBehaviour
 {
     private FindMatches matches;
