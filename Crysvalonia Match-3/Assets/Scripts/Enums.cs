@@ -25,5 +25,8 @@ public enum PieceID
     CHEESE,
     DOG_TREAT,
     PUMPKIN,
-    STARFISH
+    STARFISH,
+
+    //special pieces
+    LIGHTNING_BOTTLE
 }
