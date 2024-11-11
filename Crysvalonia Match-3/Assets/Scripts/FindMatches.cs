@@ -8,12 +8,19 @@ using UnityEngine;
 /// </summary>
 public class FindMatches : MonoBehaviour
 {
+    public static FindMatches Instance;
+
     GameController controllerInstance;
     Board board;
 
     List<GameObject> currentMatches;
 
     public List<GameObject> GetCurrentMatches() { return currentMatches; }
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -29,34 +36,35 @@ public class FindMatches : MonoBehaviour
 
     public void CheckFlames()
     {
-        if (board.currentPiece != null)
+        GamePieceObject currentPiece = board.GetCurrentPiece();
+        if (currentPiece != null)
         {
-            bool otherIsMatched = board.currentPiece.GetSwappingObject().GetIsMatched() && board.currentPiece.GetSwappingObject() != null;
-            if (board.currentPiece.GetIsMatched())
+            bool otherIsMatched = currentPiece.GetSwappingObject().GetIsMatched() && currentPiece.GetSwappingObject() != null;
+            if (currentPiece.GetIsMatched())
             {
-                if ((board.currentPiece.GetMoveAngle() > -45 && board.currentPiece.GetMoveAngle() <= 45) //moves up
-                    || (board.currentPiece.GetMoveAngle() < -135 || board.currentPiece.GetMoveAngle() >= 135)) //moves down
+                if ((currentPiece.GetMoveAngle() > -45 && currentPiece.GetMoveAngle() <= 45) //moves up
+                    || (currentPiece.GetMoveAngle() < -135 || currentPiece.GetMoveAngle() >= 135)) //moves down
                 {
-                    board.currentPiece.MakeSpecial(PieceID.ROW_FLAME);
+                    currentPiece.MakeSpecial(PieceID.FLAME, false);
                 }
                 else //if the piece isn't moving up or down it's moving to the side
                 {
-                    board.currentPiece.MakeSpecial(PieceID.COLUMN_FLAME);
+                    currentPiece.MakeSpecial(PieceID.FLAME, true);
                 }
             }
             else if (otherIsMatched)
             {
-                GamePieceObject otherPiece = board.currentPiece.GetSwappingObject();
+                GamePieceObject otherPiece = currentPiece.GetSwappingObject();
                 if (otherPiece.GetIsMatched())
                 {
-                    if ((board.currentPiece.GetMoveAngle() > -45 && board.currentPiece.GetMoveAngle() <= 45)
-                     || (board.currentPiece.GetMoveAngle() < -135 || board.currentPiece.GetMoveAngle() >= 135))
+                    if ((currentPiece.GetMoveAngle() > -45 && currentPiece.GetMoveAngle() <= 45)
+                     || (currentPiece.GetMoveAngle() < -135 || currentPiece.GetMoveAngle() >= 135))
                     {
-                        otherPiece.MakeSpecial(PieceID.ROW_FLAME);
+                        otherPiece.MakeSpecial(PieceID.FLAME, false);
                     }
                     else
                     {
-                        otherPiece.MakeSpecial(PieceID.COLUMN_FLAME);
+                        otherPiece.MakeSpecial(PieceID.FLAME, true);
                     }
                 }
             }
@@ -65,13 +73,14 @@ public class FindMatches : MonoBehaviour
 
     public void GetPieceIDs(PieceID pieceID)
     {
-        for (int i = 0; i < board.width; i++)
+        GameObject[,] allObjects = board.GetAllObjects();
+        for (int i = 0; i < board.GetBoardWidth(); i++)
         {
-            for (int j = 0; j < board.height; j++)
+            for (int j = 0; j < board.GetBoardHeight(); j++)
             {
-                if (board.allObjects[i, j] != null)
+                if (allObjects[i, j] != null)
                 {
-                    GamePieceObject currentPiece = board.allObjects[i, j].GetComponent<GamePieceObject>();
+                    GamePieceObject currentPiece = allObjects[i, j].GetComponent<GamePieceObject>();
                     if (currentPiece.GetBaseID() == pieceID)
                     {
                         currentPiece.OnMatch();
@@ -88,10 +97,10 @@ public class FindMatches : MonoBehaviour
         {
             for (int j = row - 1; j < row + 1; j++)
             {
-                if(i >= 0 && i < board.width && j >= 0 && j < board.height)
+                if(i >= 0 && i < board.GetBoardWidth() && j >= 0 && j < board.GetBoardHeight())
                 {
-                    adjacentPieces.Add(board.allObjects[i, j]);
-                    board.allObjects[i, j].GetComponent<GamePieceObject>().OnMatch();
+                    adjacentPieces.Add(board.GetAllObjects()[i, j]);
+                    board.GetAllObjects()[i, j].GetComponent<GamePieceObject>().OnMatch();
                 }
             }
         }
@@ -117,40 +126,21 @@ public class FindMatches : MonoBehaviour
         return currentPieces;
     }
 
-    List<GameObject> isRowFlame(GamePieceObject piece1, GamePieceObject piece2, GamePieceObject piece3)
+    List<GameObject> isColumnRowFlame(GamePieceObject piece1, GamePieceObject piece2, GamePieceObject piece3)
     {
         List<GameObject> currentPieces = new List<GameObject>();
 
-        if (piece1.GetSpecialID() == PieceID.ROW_FLAME)
+        if (piece1.GetSpecialID() == PieceID.FLAME)
         {
-            currentMatches.Union(getRowPieces(piece1.GetRow()));
+            currentMatches.Union(getColumnRowPieces(piece1.IsColumnFlame(), piece1.GetColumn()));
         }
-        if (piece2.GetSpecialID() == PieceID.ROW_FLAME)
+        if (piece2.GetSpecialID() == PieceID.FLAME)
         {
-            currentMatches.Union(getRowPieces(piece2.GetRow()));
+            currentMatches.Union(getColumnRowPieces(piece2.IsColumnFlame(), piece2.GetColumn()));
         }
-        if (piece3.GetSpecialID() == PieceID.ROW_FLAME)
+        if (piece3.GetSpecialID() == PieceID.FLAME)
         {
-            currentMatches.Union(getRowPieces(piece3.GetRow()));
-        }
-        return currentPieces;
-    }
-
-    List<GameObject> isColumnFlame(GamePieceObject piece1, GamePieceObject piece2, GamePieceObject piece3)
-    {
-        List<GameObject> currentPieces = new List<GameObject>();
-
-        if (piece1.GetSpecialID() == PieceID.COLUMN_FLAME)
-        {
-            currentMatches.Union(getColumnPieces(piece1.GetColumn()));
-        }
-        if (piece2.GetSpecialID() == PieceID.COLUMN_FLAME)
-        {
-            currentMatches.Union(getColumnPieces(piece2.GetColumn()));
-        }
-        if (piece3.GetSpecialID() == PieceID.COLUMN_FLAME)
-        {
-            currentMatches.Union(getColumnPieces(piece3.GetColumn()));
+            currentMatches.Union(getColumnRowPieces(piece3.IsColumnFlame(), piece3.GetColumn()));
         }
         return currentPieces;
     }
@@ -167,19 +157,20 @@ public class FindMatches : MonoBehaviour
     IEnumerator findAllMatchesCo() //TODO: rewrite this so 1. there isn't bazillion nestled if statements and 2. there isn't so much repeat code
     {
         yield return new WaitForSeconds(.2f);
+        GameObject[,] allObjects = board.GetAllObjects();
 
-        for (int i = 0; i < board.width; i++)
+        for (int i = 0; i < board.GetBoardWidth(); i++)
         {
-            for (int j = 0; j < board.height; j++)
+            for (int j = 0; j < board.GetBoardHeight(); j++)
             {
-                GameObject currentPiece = board.allObjects[i, j];
+                GameObject currentPiece = allObjects[i, j];
                 if (currentPiece != null)
                 {
                     GamePieceObject currentPieceComp = currentPiece.GetComponent<GamePieceObject>();
-                    if (i > 0 && i < board.width - 1)
+                    if (i > 0 && i < board.GetBoardWidth() - 1)
                     {
-                        GameObject leftPiece = board.allObjects[i - 1, j];
-                        GameObject rightPiece = board.allObjects[i + 1, j];
+                        GameObject leftPiece = allObjects[i - 1, j];
+                        GameObject rightPiece = allObjects[i + 1, j];
 
                         if (leftPiece != null && rightPiece != null)
                         {
@@ -188,8 +179,7 @@ public class FindMatches : MonoBehaviour
 
                             if (leftPiece.tag == currentPiece.tag && rightPiece.tag == currentPiece.tag)
                             {
-                                currentMatches.Union(isRowFlame(currentPieceComp, leftPieceComp, rightPieceComp));
-                                currentMatches.Union(isColumnFlame(currentPieceComp, leftPieceComp, rightPieceComp));
+                                currentMatches.Union(isColumnRowFlame(currentPieceComp, leftPieceComp, rightPieceComp));
                                 currentMatches.Union(isBomb(currentPieceComp, leftPieceComp, rightPieceComp));
 
                                 addToListAndMatch(leftPiece);
@@ -199,10 +189,10 @@ public class FindMatches : MonoBehaviour
                             
                         }
                     }
-                    if (j > 0 && j < board.height - 1)
+                    if (j > 0 && j < board.GetBoardHeight() - 1)
                     {
-                        GameObject upPiece = board.allObjects[i, j + 1];
-                        GameObject downPiece = board.allObjects[i, j - 1];
+                        GameObject upPiece = allObjects[i, j + 1];
+                        GameObject downPiece = allObjects[i, j - 1];
 
                         if (upPiece != null && downPiece != null)
                         {
@@ -212,8 +202,7 @@ public class FindMatches : MonoBehaviour
                             if (upPiece.tag == currentPiece.tag && downPiece.tag == currentPiece.tag)
                             {
 
-                                currentMatches.Union(isColumnFlame(currentPieceComp, upPieceComp, downPieceComp));
-                                currentMatches.Union(isRowFlame(currentPieceComp, upPieceComp, downPieceComp));
+                                currentMatches.Union(isColumnRowFlame(currentPieceComp, upPieceComp, downPieceComp));
                                 currentMatches.Union(isBomb(currentPieceComp, upPieceComp, downPieceComp));
 
                                 addToListAndMatch(upPiece);
@@ -227,29 +216,32 @@ public class FindMatches : MonoBehaviour
         }
     }
 
-    List<GameObject> getColumnPieces(int column)
+    /// <summary>
+    /// Get either a row or a colun of game pieces
+    /// </summary>
+    /// <param name="isColumn">Is the columnRow value a column?</param> 
+    /// <param name="columnRow">Which column or row is wanted?</param> 
+    /// <returns></returns>
+    List<GameObject> getColumnRowPieces(bool isColumn, int columnRow)
     {
         List<GameObject> pieces = new List<GameObject>();
-        for (int i = 0; i < board.height; i++)
+        for (int i = 0; i < board.GetBoardHeight(); i++)
         {
-            if(board.allObjects[column, i] != null)
+            if (isColumn)
             {
-                pieces.Add(board.allObjects[column, i]);
-                board.allObjects[column, i].GetComponent<GamePieceObject>().OnMatch();
+                if (board.GetAllObjects()[columnRow, i] != null)
+                {
+                    pieces.Add(board.GetAllObjects()[columnRow, i]);
+                    board.GetAllObjects()[columnRow, i].GetComponent<GamePieceObject>().OnMatch();
+                }
             }
-        }
-        return pieces;
-    }
-
-    List<GameObject> getRowPieces(int row)
-    {
-        List<GameObject> pieces = new List<GameObject>();
-        for (int i = 0; i < board.width; i++)
-        {
-            if (board.allObjects[i, row] != null)
+            else
             {
-                pieces.Add(board.allObjects[i, row]);
-                board.allObjects[i, row].GetComponent<GamePieceObject>().OnMatch();
+                if (board.GetAllObjects()[i, columnRow] != null)
+                {
+                    pieces.Add(board.GetAllObjects()[i, columnRow]);
+                    board.GetAllObjects()[i, columnRow].GetComponent<GamePieceObject>().OnMatch();
+                }
             }
         }
         return pieces;

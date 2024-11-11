@@ -32,8 +32,7 @@ public enum PieceID
 
     //special pieces
     LIGHTNING_BOTTLE,
-    ROW_FLAME,
-    COLUMN_FLAME,
+    FLAME,
     BOMB
 }
 

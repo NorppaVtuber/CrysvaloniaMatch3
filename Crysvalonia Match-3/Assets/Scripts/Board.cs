@@ -10,26 +10,34 @@ public class Board : MonoBehaviour
 {
     public static Board Instance;
 
-    private FindMatches matches;
-    public GameState currentState = GameState.MOVE;
+    FindMatches matches;
+    GameState currentState = GameState.MOVE;
 
-    public int height;
-    public int width;
-    public int offSet;
+    [Header("Board setup")]
+    [SerializeField] int height;
+    [SerializeField] int width;
+    [SerializeField] int offSet;
 
-    public float decreaseRowWaitTime;
-    public float spawnPieceWaitTime;
+    [SerializeField] float decreaseRowWaitTime;
+    [SerializeField] float spawnPieceWaitTime;
 
-    public GameObject tilePrefab;
-    public GameObject[] objects;
-    public GameObject[] destroyEffect;
+    [SerializeField] GameObject tilePrefab; //is this even needed anymore?
+    [SerializeField] GamePieceObject[] objects;
+    //public GameObject[] destroyEffect; //the objects will tell their own destroy effect, no need to keep comparing string tags
 
-    public Slider scoreSlider;
+    [SerializeField] Slider scoreSlider;
 
-    private BackgroundTile[,] tiles;
-    public GameObject[,] allObjects;
+    public int GetBoardHeight() { return height; }
+    public int GetBoardWidth() { return width; }
 
-    public GamePieceObject currentPiece;
+
+    BackgroundTile[,] tiles;
+
+    GamePieceObject currentPiece;
+    public GamePieceObject GetCurrentPiece() { return currentPiece; }
+
+    GameObject[,] allObjects;
+    public GameObject[,] GetAllObjects() { return allObjects; }
 
     private void Awake()
     {
@@ -39,7 +47,7 @@ public class Board : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        matches = FindObjectOfType<FindMatches>();
+        matches = FindMatches.Instance;
         scoreSlider.value = 0;
         tiles = new BackgroundTile[width, height];
         allObjects = new GameObject[width, height];

@@ -17,6 +17,9 @@ public class GamePieceObject : ScriptableObject
     public int GetRow() { return row; }
     public int GetColumn() { return column; }
 
+    bool isColumnFlame;
+    public bool IsColumnFlame() { return isRowFlame; }
+
     int targetX;
     int targetY;
 
@@ -53,7 +56,7 @@ public class GamePieceObject : ScriptableObject
         specialID = PieceID.NONE; //none of the pieces can be special right after spawning in
 
         board = Board.Instance;
-        matches = FindFirstObjectByType<FindMatches>(); //There will only ever be one FindMatches
+        matches = FindMatches.Instance;
     }
 
     public void OnMatch()
@@ -66,9 +69,22 @@ public class GamePieceObject : ScriptableObject
         }
     }
 
-    public void MakeSpecial(PieceID newSpecialID)
+    /// <summary>
+    /// Set a new special ID for the game piece
+    /// </summary>
+    /// <param name="newSpecialID">What is the new special ID?</param>
+    /// <param name="columnFlame">If the new special ID is "Flame", will this be a column flame?</param>
+    public void MakeSpecial(PieceID newSpecialID, bool columnFlame)
     {
+        if (specialID == PieceID.NONE) //if a piece is already special, let's not change its specialty
+            return;
+
         isMatched = false;
         specialID = newSpecialID;
+
+        if (columnFlame)
+            isColumnFlame = true;
+        else
+            isColumnFlame = false;
     }
 }
