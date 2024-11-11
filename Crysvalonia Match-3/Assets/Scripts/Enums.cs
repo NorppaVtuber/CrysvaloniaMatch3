@@ -36,3 +36,11 @@ public enum PieceID
     COLUMN_FLAME,
     BOMB
 }
+
+public enum MenuID
+{
+    START_MENU,
+    OPTIONS_MENU,
+    CREDITS_MENU,
+    RESET_MENU
+}

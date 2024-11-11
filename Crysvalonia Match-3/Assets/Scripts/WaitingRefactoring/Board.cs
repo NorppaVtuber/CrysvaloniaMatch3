@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// </summary>
 public class Board : MonoBehaviour
 {
-    public Board Instance;
+    public static Board Instance;
 
     private FindMatches matches;
     public GameState currentState = GameState.MOVE;
@@ -29,7 +29,12 @@ public class Board : MonoBehaviour
     private BackgroundTile[,] tiles;
     public GameObject[,] allObjects;
 
-    public GamePiece currentPiece;
+    public GamePieceObject currentPiece;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()

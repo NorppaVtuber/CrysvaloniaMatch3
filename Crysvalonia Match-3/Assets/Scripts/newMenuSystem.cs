@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// This script will handle all the menus
@@ -6,6 +7,10 @@ using UnityEngine;
 public class newMenuSystem : MonoBehaviour
 {
     GameController controllerInstance;
+
+    [SerializeField] Canvas menuBackground;
+    [SerializeField] Sprite menuSprite;
+    [SerializeField] Button buttonPrefab;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

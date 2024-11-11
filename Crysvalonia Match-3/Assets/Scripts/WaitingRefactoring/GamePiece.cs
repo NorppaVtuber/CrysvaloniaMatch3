@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GamePiece : MonoBehaviour //TODO: Delete once all pieces can function as Scriptable Objects
 {
-    [Header("Board variables")]
+    /*[Header("Board variables")]
     public int column;
     public int row;
     public int targetX;
@@ -271,5 +271,5 @@ public class GamePiece : MonoBehaviour //TODO: Delete once all pieces can functi
         isBomb = true;
         GameObject bomber = Instantiate(bomb, transform.position, Quaternion.identity);
         bomber.transform.parent = this.transform;
-    }
+    }*/
 }

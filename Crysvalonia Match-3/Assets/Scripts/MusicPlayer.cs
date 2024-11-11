@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// This script will handle the music. In the future, it will hopefully also handle any sound effects.
+/// </summary>
 public class MusicPlayer : MonoBehaviour
 {
     //TODO: Create a system for controlling audio level

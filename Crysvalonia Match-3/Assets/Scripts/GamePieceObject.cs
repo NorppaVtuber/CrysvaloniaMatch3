@@ -14,22 +14,31 @@ public class GamePieceObject : ScriptableObject
 
     int column;
     int row;
+    public int GetRow() { return row; }
+    public int GetColumn() { return column; }
+
     int targetX;
     int targetY;
+
     int prevColumn;
     int prevRow;
+
     bool isMatched;
+    public bool GetIsMatched() { return isMatched; }
+
     [SerializeField] int score = 200;
 
     [SerializeField] Sprite mySprite;
     [SerializeField] GameObject destroyParticlePrefab;
 
     GamePieceObject swappingObject;
+    public GamePieceObject GetSwappingObject() { return swappingObject; }
 
     Vector2 firstPos;
     Vector2 secondPos;
     Vector2 helperPos;
     float moveAngle;
+    public float GetMoveAngle() { return moveAngle; }
     [SerializeField] float swipeResist = 1f; //the minimum distance a piece has to be moved for the move to "count". This is needed to avoid wasting moves on misclicks and taps.
 
     Board board;
@@ -43,7 +52,7 @@ public class GamePieceObject : ScriptableObject
         }
         specialID = PieceID.NONE; //none of the pieces can be special right after spawning in
 
-        board = board.Instance;
+        board = Board.Instance;
         matches = FindFirstObjectByType<FindMatches>(); //There will only ever be one FindMatches
     }
 
@@ -53,7 +62,13 @@ public class GamePieceObject : ScriptableObject
 
         if(specialID == PieceID.LIGHTNING_BOTTLE)
         {
-            matches.GetColors(swappingObject.GetSpecialID()); //TODO: Change matches.GetColors to function with PieceID instead
+            matches.GetPieceIDs(swappingObject.GetSpecialID());
         }
+    }
+
+    public void MakeSpecial(PieceID newSpecialID)
+    {
+        isMatched = false;
+        specialID = newSpecialID;
     }
 }
