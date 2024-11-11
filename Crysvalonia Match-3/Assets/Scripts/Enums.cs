@@ -17,6 +17,9 @@ public enum GameDifficulty
 
 public enum PieceID
 {
+    //Each piece will have a "basic" ID and a special ID.
+    NONE,
+
     //basic pieces
     CARROT,
     FEATHER,
@@ -28,5 +31,8 @@ public enum PieceID
     STARFISH,
 
     //special pieces
-    LIGHTNING_BOTTLE
+    LIGHTNING_BOTTLE,
+    ROW_FLAME,
+    COLUMN_FLAME,
+    BOMB
 }

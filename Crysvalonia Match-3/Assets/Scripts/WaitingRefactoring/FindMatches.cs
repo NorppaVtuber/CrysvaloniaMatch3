@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+/// <summary>
+/// This script will handle any matches that happen
+/// </summary>
 public class FindMatches : MonoBehaviour
 {
     private Board board;

@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class GamePiece : MonoBehaviour
+public class GamePiece : MonoBehaviour //TODO: Delete once all pieces can function as Scriptable Objects
 {
     [Header("Board variables")]
     public int column;

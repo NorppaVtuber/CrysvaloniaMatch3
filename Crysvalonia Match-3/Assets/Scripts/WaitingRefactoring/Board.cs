@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// This script will handle creating the board and moving the pieces on the board
+/// </summary>
 public class Board : MonoBehaviour
 {
+    public Board Instance;
+
     private FindMatches matches;
     public GameState currentState = GameState.MOVE;
 
