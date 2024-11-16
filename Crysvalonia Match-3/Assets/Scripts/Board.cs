@@ -22,10 +22,10 @@ public class Board : MonoBehaviour
     [SerializeField] float spawnPieceWaitTime;
 
     [SerializeField] GameObject tilePrefab; //is this even needed anymore?
-    [SerializeField] GamePieceObject[] objects;
+    [SerializeField] GamePiece[] objects; //why u empty
     //public GameObject[] destroyEffect; //the objects will tell their own destroy effect, no need to keep comparing string tags
 
-    [SerializeField] Slider scoreSlider;
+    [SerializeField] Slider scoreSlider; //TODO: Move this to a score script of some kind
 
     public int GetBoardHeight() { return height; }
     public int GetBoardWidth() { return width; }
@@ -33,8 +33,8 @@ public class Board : MonoBehaviour
 
     BackgroundTile[,] tiles;
 
-    GamePieceObject currentPiece;
-    public GamePieceObject GetCurrentPiece() { return currentPiece; }
+    GamePiece currentPiece;
+    public GamePiece GetCurrentPiece() { return currentPiece; }
 
     GameObject[,] allObjects;
     public GameObject[,] GetAllObjects() { return allObjects; }
@@ -51,10 +51,26 @@ public class Board : MonoBehaviour
         scoreSlider.value = 0;
         tiles = new BackgroundTile[width, height];
         allObjects = new GameObject[width, height];
-        SetUp();
+        setUp();
     }
 
-    private void SetUp()
+    public void DestroyMatches()
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (allObjects[i, j] != null)
+                {
+                    destroyMatchesAt(i, j);
+                }
+            }
+        }
+        matches.ClearMatchList();
+        StartCoroutine(decreaseRowCo());
+    }
+
+    void setUp()
     {
         for (int i = 0; i < width; i++) // i = columns, j = rows
         {
@@ -66,24 +82,22 @@ public class Board : MonoBehaviour
                 backgroundTile.name = "(" + i + ", " + j + ")";
                 int objectToUse = Random.Range(0, objects.Length);
                 int maxIterations = 0;
-                while(MatchesAt(i, j, objects[objectToUse]) && maxIterations < 100)
+                while(matchesAt(i, j, objects[objectToUse]) && maxIterations < 100)
                 {
                     objectToUse = Random.Range(0, objects.Length);
                     maxIterations++;
                 }
-                maxIterations = 0;
 
                 Vector3 tilePos = new Vector3(tempPos.x, tempPos.y, -0.03f);
-                GameObject _object = Instantiate(objects[objectToUse], tilePos, Quaternion.identity);
-                _object.GetComponent<GamePiece>().row = j;
-                _object.GetComponent<GamePiece>().column = i;
+                GameObject _object = Instantiate(objects[objectToUse].gameObject, tilePos, Quaternion.identity);
+                _object.GetComponent<GamePiece>().InitializePiece(j, i);
                 _object.transform.parent = this.transform;
                 allObjects[i, j] = _object;
             }
         }
     }
 
-    private bool MatchesAt(int column, int row, GameObject piece)
+    bool matchesAt(int column, int row, GamePiece piece)
     {
         if(column > 1 && row > 1)
         {
@@ -116,61 +130,60 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    private bool ColumnOrRow()
+    bool columnOrRow()
     {
         int numberHorizontal = 0;
         int numberVertical = 0;
-        GamePiece firstPiece = matches.currentMatches[0].GetComponent<GamePiece>();
+        GamePiece firstPiece = matches.GetCurrentMatches()[0].GetComponent<GamePiece>();
 
         if (firstPiece != null)
         {
-            foreach (GameObject gamePiece in matches.currentMatches)
+            foreach (GameObject gamePiece in matches.GetCurrentMatches())
             {
                 GamePiece piece = gamePiece.GetComponent<GamePiece>();
-                if(piece.row == firstPiece.row)
+                if(piece.GetRow() == firstPiece.GetRow())
                 {
                     numberHorizontal++;
                 }
-                if(piece.column == firstPiece.column)
+                if(piece.GetColumn() == firstPiece.GetColumn())
                 {
                     numberVertical++;
                 }
             }
         }
-        return (numberVertical == 5 || numberHorizontal == 5);
+        return (numberVertical >= 5 || numberHorizontal >= 5);
     }
 
-    private void CheckToMakePowerUps()
+    void checkToMakePowerUps() //TODO: Make this prettier
     {
-        if(matches.currentMatches.Count == 4 || matches.currentMatches.Count == 7)
+        List<GameObject> _currentMatches = matches.GetCurrentMatches();
+        if(_currentMatches.Count == 4 || _currentMatches.Count == 7)
         {
             matches.CheckFlames();
         }
-        if(matches.currentMatches.Count == 5 || matches.currentMatches.Count == 8)
+        if(_currentMatches.Count == 5 || _currentMatches.Count == 8)
         {
-            if(ColumnOrRow())
+            if(columnOrRow())
             {
                 if(currentPiece != null)
                 {
-                    if (currentPiece.isMatched)
+                    if (currentPiece.GetIsMatched())
                     {
-                        if (!currentPiece.isLightning)
+                        if (currentPiece.GetSpecialID() != PieceID.LIGHTNING_BOTTLE)
                         {
-                            currentPiece.isMatched = false;
-                            currentPiece.MakeLightningBottle();
+                            currentPiece.MakeSpecial(PieceID.LIGHTNING_BOTTLE);
                         }
                     }
                     else
                     {
-                        if(currentPiece.otherObject != null)
+                        if(currentPiece.GetSwappingObject() != null)
                         {
-                            GamePiece otherPiece = currentPiece.otherObject.GetComponent<GamePiece>();
-                            if (otherPiece.isMatched)
+                            GamePiece otherPiece = currentPiece.GetSwappingObject();
+                            if (otherPiece.GetIsMatched())
                             {
-                                if (!otherPiece.isLightning)
+                                if (otherPiece.GetSpecialID() == PieceID.LIGHTNING_BOTTLE)
                                 {
-                                    otherPiece.isMatched = false;
-                                    otherPiece.MakeLightningBottle();
+                                    otherPiece.MakeSpecial(PieceID.LIGHTNING_BOTTLE);
                                 }
                             }
                         }
@@ -181,25 +194,23 @@ public class Board : MonoBehaviour
             {
                 if (currentPiece != null)
                 {
-                    if (currentPiece.isMatched)
+                    if (currentPiece.GetIsMatched())
                     {
-                        if (!currentPiece.isBomb)
+                        if (currentPiece.GetSpecialID() != PieceID.BOMB)
                         {
-                            currentPiece.isMatched = false;
-                            currentPiece.MakeBomb();
+                            currentPiece.MakeSpecial(PieceID.BOMB);
                         }
                     }
                     else
                     {
-                        if (currentPiece.otherObject != null)
+                        if (currentPiece.GetSwappingObject() != null)
                         {
-                            GamePiece otherPiece = currentPiece.otherObject.GetComponent<GamePiece>();
-                            if (otherPiece.isMatched)
+                            GamePiece otherPiece = currentPiece.GetSwappingObject();
+                            if (otherPiece.GetIsMatched())
                             {
-                                if (!otherPiece.isBomb)
+                                if (otherPiece.GetSpecialID() != PieceID.BOMB)
                                 {
-                                    otherPiece.isMatched = false;
-                                    otherPiece.MakeBomb();
+                                    otherPiece.MakeSpecial(PieceID.BOMB);
                                 }
                             }
                         }
@@ -209,79 +220,23 @@ public class Board : MonoBehaviour
         }
     }
 
-    private void DestroyMatchesAt(int column, int row)
+    void destroyMatchesAt(int column, int row)
     {
-        if (allObjects[column, row].GetComponent<GamePiece>().isMatched)
+        GamePiece _currentPiece = allObjects[column, row].GetComponent<GamePiece>();
+        if (_currentPiece.GetIsMatched())
         {
-            if(matches.currentMatches.Count >= 4)
+            if(matches.GetCurrentMatches().Count >= 4)
             {
-                CheckToMakePowerUps();
+                checkToMakePowerUps();
             }
-            scoreSlider.value += allObjects[column, row].GetComponent<GamePiece>().score;
-            int i;
-            switch (allObjects[column, row].tag)
-            {
-                case "Dog treat":
-                    i = 0;
-                    break;
-                case "Lightning bottle":
-                    i = 1;
-                    break;
-                case "Carrot":
-                    i = 2;
-                    break;
-                case "Cheese":
-                    i = 3;
-                    break;
-                case "Clover":
-                    i = 4;
-                    break;
-                case "Feather":
-                    i = 5;
-                    break;
-                case "Flames":
-                    i = 6;
-                    break;
-                case "Lightning":
-                    i = 7;
-                    break;
-                case "Mouse":
-                    i = 8;
-                    break;
-                case "Pumpkin":
-                    i = 9;
-                    break;
-                case "Starfish":
-                    i = 10;
-                    break;
-                default:
-                    i = 0;
-                    break;
-            }
-            GameObject particle = Instantiate(destroyEffect[i], allObjects[column, row].transform.position, Quaternion.identity);
-            Destroy(particle, .5f);
-            Destroy(allObjects[column, row]);
+            scoreSlider.value += _currentPiece.GetScore();
+            _currentPiece.OnMatch();
+            
             allObjects[column, row] = null;
         }
     }
 
-    public void DestroyMatches()
-    {
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                if (allObjects[i, j] != null)
-                {
-                    DestroyMatchesAt(i, j);
-                }
-            }
-        }
-        matches.currentMatches.Clear();
-        StartCoroutine(DecreaseRowCo());
-    }
-
-    private IEnumerator DecreaseRowCo()
+    IEnumerator decreaseRowCo()
     {
         int nullCount = 0;
         for (int i = 0; i < width; i++)
@@ -294,17 +249,17 @@ public class Board : MonoBehaviour
                 }
                 else if (nullCount > 0)
                 {
-                    allObjects[i, j].GetComponent<GamePiece>().row -= nullCount;
+                    allObjects[i, j].GetComponent<GamePiece>().SetRow(allObjects[i, j].GetComponent<GamePiece>().GetRow() - nullCount);
                     allObjects[i, j] = null;
                 }
             }
             nullCount = 0;
         }
         yield return new WaitForSeconds(decreaseRowWaitTime);
-        StartCoroutine(FillBoardCo());
+        StartCoroutine(fillBoardCo());
     }
 
-    private void RefillBoard()
+    void refillBoard()
     {
         for (int i = 0; i < width; i++)
         {
@@ -314,17 +269,16 @@ public class Board : MonoBehaviour
                 {
                     Vector2 tempPos = new Vector2(i, j + offSet);
                     int objectToUse = Random.Range(0, objects.Length);
-                    GameObject piece = Instantiate(objects[objectToUse], tempPos, Quaternion.identity);
-                    piece.transform.parent = this.transform;
+                    GameObject piece = Instantiate(objects[objectToUse].gameObject, tempPos, Quaternion.identity);
+                    piece.transform.parent = transform;
                     allObjects[i, j] = piece;
-                    piece.GetComponent<GamePiece>().row = j;
-                    piece.GetComponent<GamePiece>().column = i;
+                    piece.GetComponent<GamePiece>().InitializePiece(j, i);
                 }
             }
         }
     }
 
-    private bool MatchesOnBoard()
+    bool matchesOnBoard()
     {
         for (int i = 0; i < width; i++)
         {
@@ -332,7 +286,7 @@ public class Board : MonoBehaviour
             {
                 if(allObjects[i, j] != null)
                 {
-                    if (allObjects[i, j].GetComponent<GamePiece>().isMatched)
+                    if (allObjects[i, j].GetComponent<GamePiece>().GetIsMatched())
                     {
                         return true;
                     }
@@ -342,19 +296,19 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    private IEnumerator FillBoardCo()
+    IEnumerator fillBoardCo()
     {
 
-        RefillBoard();
+        refillBoard();
         yield return new WaitForSeconds(spawnPieceWaitTime);
 
 
-        while (MatchesOnBoard())
+        while (matchesOnBoard())
         {
             yield return new WaitForSeconds(spawnPieceWaitTime);
             DestroyMatches();
         }
-        matches.currentMatches.Clear();
+        matches.ClearMatchList();
         currentPiece = null;
         if(currentState != GameState.OVER)
         {

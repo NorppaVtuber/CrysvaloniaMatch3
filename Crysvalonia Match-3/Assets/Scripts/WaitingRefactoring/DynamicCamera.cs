@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DynamicCamera : MonoBehaviour
 {
-    private Board board;
+    /*private Board board;
     public float w;
     public float h;
     public float cameraDistance;
@@ -34,5 +34,5 @@ public class DynamicCamera : MonoBehaviour
         {
             Camera.main.orthographicSize = (board.height / 2 + padding);
         }
-    }
+    }*/
 }

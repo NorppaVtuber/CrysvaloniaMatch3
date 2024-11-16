@@ -4,7 +4,8 @@ public enum GameState
 {
     WAIT,
     MOVE,
-    OVER
+    OVER,
+    PAUSE
 }
 
 public enum GameDifficulty

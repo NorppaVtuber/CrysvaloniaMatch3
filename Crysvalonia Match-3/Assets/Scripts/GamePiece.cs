@@ -1,8 +1,97 @@
 using System.Collections;
 using UnityEngine;
 
-public class GamePiece : MonoBehaviour //TODO: Delete once all pieces can function as Scriptable Objects
+public class GamePiece : MonoBehaviour
 {
+    [SerializeField] PieceID baseID = PieceID.NONE;
+    [SerializeField] PieceID specialID = PieceID.NONE;
+
+    public PieceID GetBaseID() { return baseID; }
+    public PieceID GetSpecialID() { return specialID; }
+
+    int column;
+    int row;
+    int targetX;
+    int targetY;
+    int prevColumn;
+    int prevRow;
+
+    public int GetRow() { return row; }
+    public int GetColumn() { return column; }
+    public void SetRow(int newRow) { row = newRow; }
+    public void SetColumn(int newColumn) { column = newColumn; }
+
+    bool isColumnFlame;
+    public bool IsColumnFlame() { return isColumnFlame; }
+    bool isMatched;
+    public bool GetIsMatched() { return isMatched; }
+
+    [SerializeField] int score = 200;
+    [SerializeField] Sprite mySprite;
+    [SerializeField] SpriteRenderer myRenderer;
+    [SerializeField] GameObject destroyParticlePrefab;
+    public int GetScore() { return score; }
+
+    GamePiece swappingObject;
+    public GamePiece GetSwappingObject() { return swappingObject; }
+
+    Vector2 firstPos;
+    Vector2 secondPos;
+    Vector2 helperPos;
+    float moveAngle;
+    public float GetMoveAngle() { return moveAngle; }
+    [SerializeField] float swipeResist = 1f;
+
+    Board board;
+    FindMatches matches;
+    public void InitializePiece(int newRow, int newColumn)
+    {
+        row = newRow;
+        column = newColumn;
+
+        if (baseID == PieceID.NONE)
+        {
+            Debug.LogError("baseID is not set!");
+        }
+        specialID = PieceID.NONE; //none of the pieces can be special right after spawning in
+
+        board = Board.Instance;
+        matches = FindMatches.Instance;
+    }
+
+    public void OnMatch()
+    {
+        isMatched = true;
+
+        if (specialID == PieceID.LIGHTNING_BOTTLE)
+        {
+            matches.GetPieceIDs(swappingObject.GetSpecialID());
+        }
+
+        /*GameObject particle = Instantiate(destroyEffect[i], allObjects[column, row].transform.position, Quaternion.identity);
+        Destroy(particle, .5f);
+        Destroy(allObjects[column, row]);*/
+    }
+
+    /// <summary>
+    /// Set a new special ID for the game piece
+    /// </summary>
+    /// <param name="newSpecialID">What is the new special ID?</param>
+    /// <param name="columnFlame">If the new special ID is "Flame", will this be a column flame?</param>
+    public void MakeSpecial(PieceID newSpecialID, bool columnFlame = false)
+    {
+        if (specialID == PieceID.NONE) //if a piece is already special, let's not change its specialty
+            return;
+
+        isMatched = false;
+        specialID = newSpecialID;
+
+        if (columnFlame)
+            isColumnFlame = true;
+        else
+            isColumnFlame = false;
+    }
+
     /*[Header("Board variables")]
     public int column;
     public int row;

@@ -36,7 +36,7 @@ public class FindMatches : MonoBehaviour
 
     public void CheckFlames()
     {
-        GamePieceObject currentPiece = board.GetCurrentPiece();
+        GamePiece currentPiece = board.GetCurrentPiece();
         if (currentPiece != null)
         {
             bool otherIsMatched = currentPiece.GetSwappingObject().GetIsMatched() && currentPiece.GetSwappingObject() != null;
@@ -54,7 +54,7 @@ public class FindMatches : MonoBehaviour
             }
             else if (otherIsMatched)
             {
-                GamePieceObject otherPiece = currentPiece.GetSwappingObject();
+                GamePiece otherPiece = currentPiece.GetSwappingObject();
                 if (otherPiece.GetIsMatched())
                 {
                     if ((currentPiece.GetMoveAngle() > -45 && currentPiece.GetMoveAngle() <= 45)
@@ -80,7 +80,7 @@ public class FindMatches : MonoBehaviour
             {
                 if (allObjects[i, j] != null)
                 {
-                    GamePieceObject currentPiece = allObjects[i, j].GetComponent<GamePieceObject>();
+                    GamePiece currentPiece = allObjects[i, j].GetComponent<GamePiece>();
                     if (currentPiece.GetBaseID() == pieceID)
                     {
                         currentPiece.OnMatch();
@@ -88,6 +88,11 @@ public class FindMatches : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void ClearMatchList()
+    {
+        currentMatches.Clear();
     }
 
     List<GameObject> getAdjacentPieces(int column, int row)
@@ -100,14 +105,14 @@ public class FindMatches : MonoBehaviour
                 if(i >= 0 && i < board.GetBoardWidth() && j >= 0 && j < board.GetBoardHeight())
                 {
                     adjacentPieces.Add(board.GetAllObjects()[i, j]);
-                    board.GetAllObjects()[i, j].GetComponent<GamePieceObject>().OnMatch();
+                    board.GetAllObjects()[i, j].GetComponent<GamePiece>().OnMatch();
                 }
             }
         }
         return adjacentPieces;
     }
 
-    List<GameObject> isBomb(GamePieceObject piece1, GamePieceObject piece2, GamePieceObject piece3) //TODO: Make this look prettier
+    List<GameObject> isBomb(GamePiece piece1, GamePiece piece2, GamePiece piece3) //TODO: Make this look prettier
     {
         List<GameObject> currentPieces = new List<GameObject>();
 
@@ -126,7 +131,7 @@ public class FindMatches : MonoBehaviour
         return currentPieces;
     }
 
-    List<GameObject> isColumnRowFlame(GamePieceObject piece1, GamePieceObject piece2, GamePieceObject piece3)
+    List<GameObject> isColumnRowFlame(GamePiece piece1, GamePiece piece2, GamePiece piece3)
     {
         List<GameObject> currentPieces = new List<GameObject>();
 
@@ -151,7 +156,7 @@ public class FindMatches : MonoBehaviour
         {
             currentMatches.Add(piece);
         }
-        piece.GetComponent<GamePieceObject>().OnMatch();
+        piece.GetComponent<GamePiece>().OnMatch();
     }
 
     IEnumerator findAllMatchesCo() //TODO: rewrite this so 1. there isn't bazillion nestled if statements and 2. there isn't so much repeat code
@@ -166,7 +171,7 @@ public class FindMatches : MonoBehaviour
                 GameObject currentPiece = allObjects[i, j];
                 if (currentPiece != null)
                 {
-                    GamePieceObject currentPieceComp = currentPiece.GetComponent<GamePieceObject>();
+                    GamePiece currentPieceComp = currentPiece.GetComponent<GamePiece>();
                     if (i > 0 && i < board.GetBoardWidth() - 1)
                     {
                         GameObject leftPiece = allObjects[i - 1, j];
@@ -174,8 +179,8 @@ public class FindMatches : MonoBehaviour
 
                         if (leftPiece != null && rightPiece != null)
                         {
-                            GamePieceObject leftPieceComp = leftPiece.GetComponent<GamePieceObject>();
-                            GamePieceObject rightPieceComp = rightPiece.GetComponent<GamePieceObject>();
+                            GamePiece leftPieceComp = leftPiece.GetComponent<GamePiece>();
+                            GamePiece rightPieceComp = rightPiece.GetComponent<GamePiece>();
 
                             if (leftPiece.tag == currentPiece.tag && rightPiece.tag == currentPiece.tag)
                             {
@@ -196,8 +201,8 @@ public class FindMatches : MonoBehaviour
 
                         if (upPiece != null && downPiece != null)
                         {
-                            GamePieceObject upPieceComp = upPiece.GetComponent<GamePieceObject>();
-                            GamePieceObject downPieceComp = downPiece.GetComponent<GamePieceObject>();
+                            GamePiece upPieceComp = upPiece.GetComponent<GamePiece>();
+                            GamePiece downPieceComp = downPiece.GetComponent<GamePiece>();
 
                             if (upPiece.tag == currentPiece.tag && downPiece.tag == currentPiece.tag)
                             {
@@ -232,7 +237,7 @@ public class FindMatches : MonoBehaviour
                 if (board.GetAllObjects()[columnRow, i] != null)
                 {
                     pieces.Add(board.GetAllObjects()[columnRow, i]);
-                    board.GetAllObjects()[columnRow, i].GetComponent<GamePieceObject>().OnMatch();
+                    board.GetAllObjects()[columnRow, i].GetComponent<GamePiece>().OnMatch();
                 }
             }
             else
@@ -240,7 +245,7 @@ public class FindMatches : MonoBehaviour
                 if (board.GetAllObjects()[i, columnRow] != null)
                 {
                     pieces.Add(board.GetAllObjects()[i, columnRow]);
-                    board.GetAllObjects()[i, columnRow].GetComponent<GamePieceObject>().OnMatch();
+                    board.GetAllObjects()[i, columnRow].GetComponent<GamePiece>().OnMatch();
                 }
             }
         }
