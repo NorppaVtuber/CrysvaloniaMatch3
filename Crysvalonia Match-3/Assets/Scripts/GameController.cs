@@ -10,8 +10,11 @@ public class GameController : MonoBehaviour
     public static GameController Instance;
 
     [SerializeField] GameObject menu;
+    [SerializeField] GameObject[] gamePieces;
 
     public UnityEvent OnSceneChange; //called when changing scenes
+
+    public GameObject[] GetGamePieces() { return gamePieces; }
 
     private void Awake() //Set this script to not destry itself and create the static instance
     {

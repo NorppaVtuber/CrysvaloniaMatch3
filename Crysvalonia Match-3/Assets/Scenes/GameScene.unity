@@ -1062,11 +1062,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce04dd05c8d6dd24f92266af4f413dec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  w: 4
-  h: 0
-  cameraDistance: -15
-  aspectRatio: 1.7
-  padding: 4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -1664,7 +1659,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aa150e428ba12b428ab7cf7b60e530b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentMatches: []
 --- !u!4 &830273321
 Transform:
   m_ObjectHideFlags: 0
@@ -2394,36 +2388,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf79a0a1ab57a6847b5a48511ba38477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 1
   height: 10
   width: 15
   offSet: 5
   decreaseRowWaitTime: 0.3
   spawnPieceWaitTime: 0.35
   tilePrefab: {fileID: 2844984970372759429, guid: e1873bbe22b297d429d19a7ffdf0bf51, type: 3}
-  objects:
-  - {fileID: 7604723390818976636, guid: 1c8bff8194d2fe14885aad9cfbcb699c, type: 3}
-  - {fileID: 977989817768407329, guid: c560ab470ac8a1e4e81e0d28ca4d5557, type: 3}
-  - {fileID: 8389188514273830405, guid: 4db7392f7d59c8c4f8283482926ddb36, type: 3}
-  - {fileID: 4901340860561549334, guid: dfad27a6b7d4a8943b794e54265e9824, type: 3}
-  - {fileID: 7841214739437363973, guid: f19f89ab2c8ac0c4b8ae508e6699e73d, type: 3}
-  - {fileID: 6195293476890572671, guid: 7da1128ef157c824db7f6bc456fca43e, type: 3}
-  - {fileID: 8206150144570913076, guid: a9bc33b99c38a6c479c49b236014e077, type: 3}
-  - {fileID: 4521676797600720289, guid: 795c17d0ff893f14a84bd5f18794c98f, type: 3}
-  destroyEffect:
-  - {fileID: 5201760157446125496, guid: c1fb7c4e4d25e5c428be0f5d41fece8d, type: 3}
-  - {fileID: 5201760157446125496, guid: 927b3536c57044d46bd9289e3ef469b9, type: 3}
-  - {fileID: 5201760157446125496, guid: 96b715a1b624ea44cb9162741900523b, type: 3}
-  - {fileID: 5201760157446125496, guid: f844e0de2977ed8439432fa96b47d170, type: 3}
-  - {fileID: 5201760157446125496, guid: d1249f9127d1bda4cb0f50525ca0d509, type: 3}
-  - {fileID: 5201760157446125496, guid: 290ea8e1bc7e67e42910ccbf3d991aac, type: 3}
-  - {fileID: 5201760157446125496, guid: 9561bd35c4d077244b5d7a84362f1ab3, type: 3}
-  - {fileID: 5201760157446125496, guid: 0800931f308069a4ca9afd09f24ad405, type: 3}
-  - {fileID: 5201760157446125496, guid: 93efe5d9c7d88c84e94dceeefbacce75, type: 3}
-  - {fileID: 5201760157446125496, guid: 3b10372965b406c44b330ddb59b178d6, type: 3}
-  - {fileID: 5201760157446125496, guid: 61f7cee295b83204ba57a66b157f64a3, type: 3}
+  objects: []
   scoreSlider: {fileID: 1185820021}
-  currentPiece: {fileID: 0}
 --- !u!4 &1152748659
 Transform:
   m_ObjectHideFlags: 0
